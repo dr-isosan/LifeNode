@@ -3,6 +3,8 @@ import networkx as nx
 from typing import Dict, List, Optional
 import os
 from datetime import datetime
+import random
+import string
 
 class NetworkVisualizer:
     """Ağı görselleştiren sınıf"""
@@ -14,10 +16,15 @@ class NetworkVisualizer:
         self.output_dir = output_dir
         self.test_counter = 0
         
+        # Benzersiz session ID oluştur (her yeni visualizer için)
+        self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + ''.join(random.choices(string.ascii_lowercase, k=4))
+        
         # Output klasörünü oluştur
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-            print(f">> Çıktı klasörü oluşturuldu: {self.output_dir}")
+            print(f">> Cikti klasoru olusturuldu: {self.output_dir}")
+        
+        print(f">> Session ID: {self.session_id}")
         
     def plot_network(self, network, title: str = "LifeNode Network", 
                     show_labels: bool = True, save_path: Optional[str] = None):
@@ -55,9 +62,9 @@ class NetworkVisualizer:
         
         # Otomatik kaydetme
         self.test_counter += 1
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         if save_path is None:
-            save_path = os.path.join(self.output_dir, f"test_{self.test_counter:03d}_network_{timestamp}.png")
+            save_path = os.path.join(self.output_dir, 
+                f"session_{self.session_id}__test{self.test_counter:02d}_network.png")
         
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f">> Gorsel kaydedildi: {save_path}")
@@ -93,10 +100,10 @@ class NetworkVisualizer:
         
         # Otomatik kaydetme
         self.test_counter += 1
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         if save_path is None:
             packet_id = packet_path[0] if packet_path else 0
-            save_path = os.path.join(self.output_dir, f"test_{self.test_counter:03d}_packet_{packet_id}_{timestamp}.png")
+            save_path = os.path.join(self.output_dir, 
+                f"session_{self.session_id}__test{self.test_counter:02d}_packet{packet_id}.png")
         
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f">> Gorsel kaydedildi: {save_path}")
