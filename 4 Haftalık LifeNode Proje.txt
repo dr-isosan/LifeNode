@@ -1,0 +1,145 @@
+🚀 4 Haftalık LifeNode Proje Planı
+
+AI-Driven Dynamic Routing Simulation for Disaster Relief Mesh Networks
+
+📅 1. HAFTA — Temel İskeletin Kurulması
+👤 Kişi A — Network & Simulation Architect
+
+• Python klasör yapısını kur (simulation/, topology.py, network.py, node.py).
+• Random Geometric Graph generatörünü yaz.
+• Basit paket yönlendirme (dummy routing) uygula.
+• Node failure model: %2 ihtimalle node düşsün/kalksın.
+• Basit görselleştirme (matplotlib).
+• Dokümantasyon: docs/architecture.md.
+
+👤 Kişi B — Environment & AI Architect
+
+• RL environment iskeleti (ai/env.py) → reset, step, state, reward, done.
+• State representation tasarımı.
+• Reward fonksiyonunun matematiksel modeli.
+• DQN agent iskeleti (dqn_agent.py, model.py).
+• Dokümantasyon: docs/rl_design.md.
+
+1. Hafta Çıktısı:
+Çalışır simülasyon iskeleti + RL ortamı + iki temel doküman.
+
+📅 2. HAFTA — Simülasyonun Tamamlanması ve RL Entegrasyonu
+👤 Kişi A — Network & Simulation Architect
+
+• Paket akışını zaman adımlarına (timesteps) böl.
+• Paket kaybı, latency, bandwidth gibi metrikleri simüle edecek alt sistemler ekle.
+• Düğümler arası mesafe → sinyal zayıflığı modelini uygula.
+• Komşuluk listesini dinamik hale getir (node failure anında yeniden hesaplama).
+• Network sınıfını finalize et (send_packet, update, get_neighbors).
+• Debug log sistemi kur.
+
+👤 Kişi B — Environment & AI Architect
+
+• Env → Network bağını kur:
+
+State, network’ten gerçek veri alsın.
+
+Action → yönlendirilecek komşu node ID’si olsun.
+• Reward fonksiyonunu gerçek simülasyon değerleriyle bağla.
+• experience replay buffer altyapısını hazırla.
+• Basit bir DQN modeli (2–3 dense layer).
+• training_loop.py içinde ilk eğitim döngüsünü kur (henüz eğitim yok).
+• RL için test-case dosyaları yaz.
+
+2. Hafta Çıktısı:
+Tam çalışan sim blokları + RL environment ile entegre + temel DQN modeli.
+
+📅 3. HAFTA — AI Öğrenme Sürecinin Gerçekten Başlaması
+👤 Kişi A — Network & Simulation Architect
+
+• 3 farklı topoloji türü ekle:
+
+RGG
+
+Grid
+
+Random sparse network
+• Trafik modelleri tasarla (ani yüklenme, paket fırtınası).
+• Node mobility modeli ekle (random walk).
+• Visualization 2.0:
+
+Node renkleri: aktif/pasif
+
+Paket akış animasyonu (isteğe bağlı)
+• Performans ölçer fonksiyonlar:
+
+Ortalama gecikme
+
+Başarı oranı (delivery rate)
+
+Throughput
+• Network config dosyası (config.yaml) üret.
+
+👤 Kişi B — Environment & AI Architect
+
+• DQN modelini eğitmeye başla.
+
+Exploration/exploitation ayarı (ε-greedy).
+
+Batch training.
+• Loss grafikleri + training logs oluştur.
+• DQN performansını klasik routing ile karşılaştırma modülü yaz:
+
+AODV benzeri dummy algoritma
+
+KNN routing
+
+Random routing
+• Reward shaping denemeleri yap.
+• Hyperparameter tuning için küçük otomasyon scriptleri oluştur.
+
+3. Hafta Çıktısı:
+Eğitilen bir DQN ajanı + karşılaştırmalı test sonuçları + görsel analizler.
+
+📅 4. HAFTA — Stabilizasyon, Optimizasyon ve Final Raporu
+👤 Kişi A — Network & Simulation Architect
+
+• Simulation runtime optimizasyonu (gereksiz hesapları azalt, caching).
+• Büyük ölçek testleri (100+ node).
+• Visualization final polish.
+• CLI veya basit web UI prototipi (Streamlit).
+• Final demo senaryosunun hazırlanması.
+• Network tarafı dokümantasyonu finalize et.
+
+👤 Kişi B — Environment & AI Architect
+
+• DQN stabilize et (target network update iyileştirmesi).
+• Overfitting testleri, farklı topolojide generalization testi.
+• Model kaydetme ve yükleme sistemleri (save_model, load_model).
+• Final raporda kullanılacak grafiklerin üretimi:
+
+Loss curve
+
+Routing efficiency
+
+Success rate karşılaştırması
+• final_report.md yazımı:
+
+Problem
+
+Yöntem
+
+Deney sonuçları
+
+AI vs traditional routing grafikleri
+
+Gelecek çalışma önerileri
+
+4. Hafta Çıktısı:
+Sunuma ve GitHub yayınlamaya hazır tam çalışan bir proje + final raporu.
+
+🏁 Dört Haftanın Tam Çıktıları
+
+• Çalışır Mesh Network simülasyonu
+• RL tabanlı routing sistemi
+• Basit görsel arayüz
+• 3 farklı topoloji + mobility + failure modelleri
+• Eğitimli DQN
+• AI vs Traditional routing karşılaştırma grafikleri
+• Final rapor
+• Komple GitHub reposu
