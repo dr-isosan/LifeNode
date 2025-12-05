@@ -1,4 +1,29 @@
+# ---------- TORCH (ÖNCE BUNUN KURULMASI ŞART) ----------
+torch==2.9.1
 
+# ---------- PYTORCH GEOMETRIC EKOSİSTEMİ ----------
+# Python 3.14 için pre-built wheel yok, sadece torch-geometric yeterli
+torch-geometric==2.7.0
+
+# ---------- CORE BİLİMSEL KÜTÜPHANELER ----------
+numpy
+scipy
 networkx
 matplotlib
-numpy
+pandas
+tqdm
+simpy
+shapely
+seaborn
+scikit-learn
+
+# ---------- YARDIMCI ARAÇLAR ----------
+rich
+typer
+python-dotenv
+pyyaml
+
+# ---------- RL KÜTÜPHANELERİ ----------
+gymnasium
+shimmy
+stable-baselines3
