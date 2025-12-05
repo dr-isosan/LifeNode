@@ -44,6 +44,26 @@ def main():
         print(f"   {key}: {value}")
     
     print(f"\n{'='*60}")
+    print(">> GÖRSELLEŞTİRME")
+    try:
+        visualizer = NetworkVisualizer(figsize=(14, 12))
+        
+        # 1. Ağ görselleştirmesi (otomatik kaydedilir)
+        print("   Ağ topolojisi çiziliyor ve kaydediliyor...")
+        visualizer.plot_network(network, title="LifeNode Ağ Topolojisi")
+        
+        # 2. Paket yollarını göster
+        if network.delivered_packets:
+            print(f"   Teslim edilen paket yolları çiziliyor ({len(network.delivered_packets)} adet)...")
+            for packet in network.delivered_packets[:3]:
+                visualizer.plot_packet_path(network, packet.path,
+                                          title=f"Paket {packet.id}: {packet.source} -> {packet.destination}")
+        
+        print("   >> Tüm görseller visualization/outputs/ klasörüne kaydedildi!")
+    except Exception as e:
+        print(f"   Hata: {e}")
+    
+    print(f"\n{'='*60}")
     print("  Simülasyon Tamamlandı!")
     return network
 

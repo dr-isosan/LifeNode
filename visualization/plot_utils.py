@@ -1,14 +1,23 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 from typing import Dict, List, Optional
+import os
+from datetime import datetime
 
 class NetworkVisualizer:
     """Ağı görselleştiren sınıf"""
     
-    def __init__(self, figsize=(12, 10)):
+    def __init__(self, figsize=(12, 10), output_dir="visualization/outputs"):
         self.figsize = figsize
         self.fig = None
         self.ax = None
+        self.output_dir = output_dir
+        self.test_counter = 0
+        
+        # Output klasörünü oluştur
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+            print(f">> Çıktı klasörü oluşturuldu: {self.output_dir}")
         
     def plot_network(self, network, title: str = "LifeNode Network", 
                     show_labels: bool = True, save_path: Optional[str] = None):
@@ -44,12 +53,19 @@ class NetworkVisualizer:
         self.ax.set_aspect('equal')
         plt.tight_layout()
         
-        if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        else:
-            plt.show()
+        # Otomatik kaydetme
+        self.test_counter += 1
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        if save_path is None:
+            save_path = os.path.join(self.output_dir, f"test_{self.test_counter:03d}_network_{timestamp}.png")
+        
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f">> Gorsel kaydedildi: {save_path}")
+        plt.close()
+        return save_path
     
-    def plot_packet_path(self, network, packet_path: List[int], title: str = "Paket Yolu"):
+    def plot_packet_path(self, network, packet_path: List[int], title: str = "Paket Yolu", 
+                        save_path: Optional[str] = None):
         self.fig, self.ax = plt.subplots(figsize=self.figsize)
         pos = nx.get_node_attributes(network.graph, 'pos')
         
@@ -74,4 +90,15 @@ class NetworkVisualizer:
                          fontsize=14, fontweight='bold')
         self.ax.axis('off')
         plt.tight_layout()
-        plt.show()
+        
+        # Otomatik kaydetme
+        self.test_counter += 1
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        if save_path is None:
+            packet_id = packet_path[0] if packet_path else 0
+            save_path = os.path.join(self.output_dir, f"test_{self.test_counter:03d}_packet_{packet_id}_{timestamp}.png")
+        
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f">> Gorsel kaydedildi: {save_path}")
+        plt.close()
+        return save_path
