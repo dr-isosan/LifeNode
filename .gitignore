@@ -35,4 +35,9 @@ htmlcov/
 # Pytest
 .pytest_cache/
 
-
+# Visualization outputs
+visualization/outputs/
+*.png
+*.jpg
+*.gif
+*.mp4
