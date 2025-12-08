@@ -1,9 +1,5 @@
 class RewardSystem:
     def __init__(self):
-        self.w_success = 100.0
-        self.w_failure = -1.0
-        self.w_step_penalty = -5.0
-        self.w_energy = -50.0
         """
         Ödül hesaplama için ağırlıklar:
         - w_success: Başarı ödülü
@@ -11,6 +7,10 @@ class RewardSystem:
         - w_step_penalty: Her adım için ceza
         - w_energy: Kalan enerjiye bağlı ceza
         """
+        self.w_success = 100.0
+        self.w_failure = -1.0
+        self.w_step_penalty = -5.0
+        self.w_energy = -50.0
 
     def calculate_reward(self, success, energy_level, hop_count, failed=False):
         """
@@ -33,3 +33,7 @@ class RewardSystem:
         # Eğer enerji 0.1 (Bitik) ise ceza -4.5 olur.
         energy_penalty = (1.0 - energy_level) * self.w_energy
         return step_reward + energy_penalty
+
+    def calculate(self, success, energy_level, hop_count, failed=False):
+        """calculate_reward için alias (backward compatibility)"""
+        return self.calculate_reward(success, energy_level, hop_count, failed)

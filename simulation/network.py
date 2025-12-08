@@ -5,10 +5,13 @@ import networkx as nx
 from .node import Node
 from .topology import TopologyGenerator
 
+
 class Packet:
     """Ağda dolaşan paket sınıfı"""
 
-    def __init__(self, packet_id: int, source_id: int, destination_id: int, data: str = ""):
+    def __init__(
+        self, packet_id: int, source_id: int, destination_id: int, data: str = ""
+    ):
         self.id = packet_id
         self.source = source_id
         self.destination = destination_id
@@ -25,6 +28,7 @@ class Packet:
 
     def __str__(self):
         return f"Packet {self.id}: {self.source}->{self.destination} (hops: {self.hop_count})"
+
 
 class Network:
     """
@@ -43,6 +47,7 @@ class Network:
         self.width = width
         self.height = height
         self.nodes = {}  # {node_id: Node} dictionary
+
     """Ağı yöneten ana sınıf"""
 
     def __init__(self, width: float = 100.0, height: float = 100.0):
@@ -67,7 +72,9 @@ class Network:
         print(f"=== AĞ OLUŞTURULUYOR ===")
 
         # Topoloji üret
-        nodes_list, graph = self.topology_generator.create_random_topology(num_nodes, communication_range)
+        nodes_list, graph = self.topology_generator.create_random_topology(
+            num_nodes, communication_range
+        )
 
         # Node dictionary'sine ekle
         self.nodes = {node.id: node for node in nodes_list}
@@ -75,7 +82,9 @@ class Network:
 
         print(f">> Ağ oluşturuldu: {len(self.nodes)} düğüm")
 
-    def add_node(self, node_id: int, position: Tuple[float, float], communication_range: float):
+    def add_node(
+        self, node_id: int, position: Tuple[float, float], communication_range: float
+    ):
         """
         Ağa yeni düğüm ekle
 
@@ -93,7 +102,9 @@ class Network:
 
         # Mevcut düğümlerle komşuluk kontrolü
         for existing_id, existing_node in self.nodes.items():
-            distance = self.topology_generator.calculate_distance(position, existing_node.position)
+            distance = self.topology_generator.calculate_distance(
+                position, existing_node.position
+            )
             if distance <= communication_range:
                 new_node.add_neighbor(existing_id)
                 existing_node.add_neighbor(node_id)
@@ -142,15 +153,6 @@ class Network:
         failures = []
         repairs = []
 
-        print(f"=== AĞ OLUŞTURULUYOR ===")
-        nodes_list, graph = self.topology_generator.create_random_topology(num_nodes, communication_range)
-        self.nodes = {node.id: node for node in nodes_list}
-        self.graph = graph
-        print(f">> Ağ oluşturuldu: {len(self.nodes)} düğüm")
-
-    def simulate_node_failure(self, failure_rate: float = 0.02):
-        failures = []
-        repairs = []
         for node_id, node in self.nodes.items():
             if random.random() < failure_rate:
                 if node.is_active:
@@ -162,9 +164,6 @@ class Network:
                         node.repair()
                         repairs.append(node_id)
 
-                    if random.random() < 0.5:
-                        node.repair()
-                        repairs.append(node_id)
         if failures:
             print(f">> Node arızaları: {failures}")
         if repairs:
@@ -218,7 +217,7 @@ class Network:
             current_pos = current_node.position
 
             best_neighbor = None
-            best_distance = float('inf')
+            best_distance = float("inf")
 
         return failures, repairs
 
@@ -244,22 +243,28 @@ class Network:
         if packet.destination in self.nodes:
             dest_pos = self.nodes[packet.destination].position
             best_neighbor = None
-            best_distance = float('inf')
+            best_distance = float("inf")
             for neighbor_id in active_neighbors:
                 neighbor_pos = self.nodes[neighbor_id].position
-                distance = self.topology_generator.calculate_distance(neighbor_pos, dest_pos)
+                distance = self.topology_generator.calculate_distance(
+                    neighbor_pos, dest_pos
+                )
                 if distance < best_distance:
                     best_distance = distance
                     best_neighbor = neighbor_id
 
             if best_neighbor:
-                print(f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}")
+                print(
+                    f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}"
+                )
                 return best_neighbor
 
         # Fallback: rastgele seç
         return random.choice(active_neighbors)
 
-    def send_packet(self, source_id: int, destination_id: int, data: str = "test_data") -> bool:
+    def send_packet(
+        self, source_id: int, destination_id: int, data: str = "test_data"
+    ) -> bool:
         """
         Paket gönderme simülasyonu
 
@@ -294,11 +299,15 @@ class Network:
 
             # Hedefe ulaştı mı?
             if best_neighbor:
-                print(f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}")
+                print(
+                    f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}"
+                )
                 return best_neighbor
         return random.choice(active_neighbors)
 
-    def send_packet(self, source_id: int, destination_id: int, data: str = "test_data") -> bool:
+    def send_packet(
+        self, source_id: int, destination_id: int, data: str = "test_data"
+    ) -> bool:
         if source_id not in self.nodes or destination_id not in self.nodes:
             print(f"Kaynak ({source_id}) veya hedef ({destination_id}) bulunamadı!")
             return False
@@ -314,7 +323,9 @@ class Network:
             current_node_id = packet.path[-1]
             if current_node_id == destination_id:
                 self.delivered_packets.append(packet)
-                print(f"   >> PAKET TESLİM EDİLDİ! Yol: {' -> '.join(map(str, packet.path))}")
+                print(
+                    f"   >> PAKET TESLİM EDİLDİ! Yol: {' -> '.join(map(str, packet.path))}"
+                )
                 return True
 
             # Sonraki hop'u bul
@@ -351,7 +362,9 @@ class Network:
         self.simulate_node_failure(failure_rate)
 
         # Rastgele paket gönderimi (test için)
-        active_nodes = [node_id for node_id, node in self.nodes.items() if node.is_active]
+        active_nodes = [
+            node_id for node_id, node in self.nodes.items() if node.is_active
+        ]
 
         if len(active_nodes) >= 2:
             source = random.choice(active_nodes)
@@ -363,38 +376,25 @@ class Network:
         """Ağ istatistiklerini döndür"""
         active_nodes = sum(1 for node in self.nodes.values() if node.is_active)
         total_nodes = len(self.nodes)
-
-            packet.add_hop(next_hop)
-            current_hop += 1
-            if current_hop >= max_hops:
-                self.lost_packets.append(packet)
-                print(f"   >> PAKET ZAMAN AŞIMI! Maksimum hop sayısına ulaşıldı")
-                return False
-        return False
-
-    def step(self, failure_rate: float = 0.02):
-        self.simulation_time += 1
-        print(f"\n=== SİMÜLASYON ADIMI {self.simulation_time} ===")
-        self.simulate_node_failure(failure_rate)
-        active_nodes = [node_id for node_id, node in self.nodes.items() if node.is_active]
-        if len(active_nodes) >= 2:
-            source = random.choice(active_nodes)
-            destination = random.choice([nid for nid in active_nodes if nid != source])
-            self.send_packet(source, destination, f"Adım {self.simulation_time} verisi")
-
-    def get_network_stats(self) -> Dict:
-        active_nodes = sum(1 for node in self.nodes.values() if node.is_active)
-        total_nodes = len(self.nodes)
         return {
-            'simulation_time': self.simulation_time,
-            'total_nodes': total_nodes,
-            'active_nodes': active_nodes,
-            'total_packets': self.packet_counter,
-            'delivered_packets': len(self.delivered_packets),
-            'lost_packets': len(self.lost_packets),
-            'delivery_rate': len(self.delivered_packets) / self.packet_counter if self.packet_counter > 0 else 0,
-            'graph_connected': nx.is_connected(self.graph) if self.graph.number_of_nodes() > 0 else False
+            "simulation_time": self.simulation_time,
+            "total_nodes": total_nodes,
+            "active_nodes": active_nodes,
+            "total_packets": self.packet_counter,
+            "delivered_packets": len(self.delivered_packets),
+            "lost_packets": len(self.lost_packets),
+            "delivery_rate": (
+                len(self.delivered_packets) / self.packet_counter
+                if self.packet_counter > 0
+                else 0
+            ),
+            "graph_connected": (
+                nx.is_connected(self.graph)
+                if self.graph.number_of_nodes() > 0
+                else False
+            ),
         }
+
 
 def test_network():
     """Network sınıfının test fonksiyonu"""
@@ -431,6 +431,6 @@ def test_network():
 
     return network
 
+
 if __name__ == "__main__":
     network = test_network()
-        }

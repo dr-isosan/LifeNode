@@ -174,18 +174,10 @@ def run_quick_test():
     return network
 
 
-if __name__ == "__main__":
-    # Komut satırı argümanı kontrolü
-    if len(sys.argv) > 1 and sys.argv[1] == "--quick":
-        # Hızlı test modu (görselleştirme yok)
-        network = run_quick_test()
-    else:
-        # Tam simülasyon
-        network, visualizer = main()
-    return network
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--quick":
-        network = run_quick_test()
+        run_quick_test()
     else:
-        network = main()
+        main()
