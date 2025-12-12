@@ -1,6 +1,6 @@
 import random
 import time
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 import networkx as nx
 from .node import Node
 from .topology import TopologyGenerator
@@ -10,14 +10,17 @@ class Packet:
     """Ağda dolaşan paket sınıfı"""
 
     def __init__(
-        self, packet_id: int, source_id: int, destination_id: int, data: str = ""
+        self,
+        packet_id: int,
+        source_id: int,
+        destination_id: int,
+        data: str = "",
     ):
         self.id = packet_id
         self.source = source_id
         self.destination = destination_id
         self.data = data
         self.hop_count = 0
-        self.path = [source_id]  # Paketin gittiği yollar
         self.path = [source_id]
         self.timestamp = time.time()
 
@@ -27,7 +30,10 @@ class Packet:
         self.path.append(node_id)
 
     def __str__(self):
-        return f"Packet {self.id}: {self.source}->{self.destination} (hops: {self.hop_count})"
+        return (
+            f"Packet {self.id}: {self.source}->{self.destination} "
+            f"(hops: {self.hop_count})"
+        )
 
 
 class Network:
@@ -46,13 +52,6 @@ class Network:
         """
         self.width = width
         self.height = height
-        self.nodes = {}  # {node_id: Node} dictionary
-
-    """Ağı yöneten ana sınıf"""
-
-    def __init__(self, width: float = 100.0, height: float = 100.0):
-        self.width = width
-        self.height = height
         self.nodes = {}
         self.graph = nx.Graph()
         self.topology_generator = TopologyGenerator(width, height)
@@ -69,7 +68,7 @@ class Network:
             num_nodes: Düğüm sayısı
             communication_range: İletişim menzili
         """
-        print(f"=== AĞ OLUŞTURULUYOR ===")
+        print("=== AĞ OLUŞTURULUYOR ===")
 
         # Topoloji üret
         nodes_list, graph = self.topology_generator.create_random_topology(
@@ -83,7 +82,10 @@ class Network:
         print(f">> Ağ oluşturuldu: {len(self.nodes)} düğüm")
 
     def add_node(
-        self, node_id: int, position: Tuple[float, float], communication_range: float
+        self,
+        node_id: int,
+        position: Tuple[float, float],
+        communication_range: float,
     ):
         """
         Ağa yeni düğüm ekle
@@ -114,7 +116,8 @@ class Network:
         self.graph.add_node(node_id, pos=position)
         self.nodes[node_id] = new_node
 
-        print(f">> Node {node_id} ağa eklendi. Komşu sayısı: {len(new_node.neighbors)}")
+        neighbor_count = len(new_node.neighbors)
+        print(f">> Node {node_id} ağa eklendi. Komşu sayısı: {neighbor_count}")
         return True
 
     def remove_node(self, node_id: int):
@@ -195,51 +198,28 @@ class Network:
         # Aktif komşuları bul
         active_neighbors = []
         for neighbor_id in current_node.neighbors:
-            if neighbor_id in self.nodes and self.nodes[neighbor_id].is_active:
-                # Döngüyü önlemek için zaten gidilen yerleri atla
-                if neighbor_id not in packet.path:
+            if neighbor_id in self.nodes:
+                neighbor = self.nodes[neighbor_id]
+                if neighbor.is_active and neighbor_id not in packet.path:
                     active_neighbors.append(neighbor_id)
 
         if not active_neighbors:
-            print(f"   Node {current_node_id}: Aktif komşu bulunamadı, paket kayboldu!")
+            msg = (
+                f"   Node {current_node_id}: "
+                f"Aktif komşu bulunamadı, paket kayboldu!"
+            )
+            print(msg)
             return None
 
         # Basit stratejiler:
         # 1. Rastgele komşu seç
         if random.random() < 0.7:  # %70 ihtimalle rastgele
             next_hop = random.choice(active_neighbors)
-            print(f"   Node {current_node_id}: Rastgele komşu seçildi -> {next_hop}")
+            msg = f"   Node {current_node_id}: " f"Rastgele komşu seçildi -> {next_hop}"
+            print(msg)
             return next_hop
 
         # 2. En yakın komşuyu seç (hedef koordinatına)
-        if packet.destination in self.nodes:
-            dest_pos = self.nodes[packet.destination].position
-            current_pos = current_node.position
-
-            best_neighbor = None
-            best_distance = float("inf")
-
-        return failures, repairs
-
-    def dummy_routing(self, packet: Packet) -> Optional[int]:
-        current_node_id = packet.path[-1]
-        if current_node_id not in self.nodes:
-            return None
-        current_node = self.nodes[current_node_id]
-        if not current_node.is_active:
-            return None
-        active_neighbors = []
-        for neighbor_id in current_node.neighbors:
-            if neighbor_id in self.nodes and self.nodes[neighbor_id].is_active:
-                if neighbor_id not in packet.path:
-                    active_neighbors.append(neighbor_id)
-        if not active_neighbors:
-            print(f"   Node {current_node_id}: Aktif komşu bulunamadı, paket kayboldu!")
-            return None
-        if random.random() < 0.7:
-            next_hop = random.choice(active_neighbors)
-            print(f"   Node {current_node_id}: Rastgele komşu seçildi -> {next_hop}")
-            return next_hop
         if packet.destination in self.nodes:
             dest_pos = self.nodes[packet.destination].position
             best_neighbor = None
@@ -254,9 +234,11 @@ class Network:
                     best_neighbor = neighbor_id
 
             if best_neighbor:
-                print(
-                    f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}"
+                msg = (
+                    f"   Node {current_node_id}: "
+                    f"En yakın komşu seçildi -> {best_neighbor}"
                 )
+                print(msg)
                 return best_neighbor
 
         # Fallback: rastgele seç
@@ -277,7 +259,8 @@ class Network:
             Gönderim başarılı mı
         """
         if source_id not in self.nodes or destination_id not in self.nodes:
-            print(f"Kaynak ({source_id}) veya hedef ({destination_id}) bulunamadı!")
+            msg = f"Kaynak ({source_id}) veya " f"hedef ({destination_id}) bulunamadı!"
+            print(msg)
             return False
 
         if not self.nodes[source_id].is_active:
@@ -298,54 +281,32 @@ class Network:
             current_node_id = packet.path[-1]
 
             # Hedefe ulaştı mı?
-            if best_neighbor:
-                print(
-                    f"   Node {current_node_id}: En yakın komşu seçildi -> {best_neighbor}"
-                )
-                return best_neighbor
-        return random.choice(active_neighbors)
-
-    def send_packet(
-        self, source_id: int, destination_id: int, data: str = "test_data"
-    ) -> bool:
-        if source_id not in self.nodes or destination_id not in self.nodes:
-            print(f"Kaynak ({source_id}) veya hedef ({destination_id}) bulunamadı!")
-            return False
-        if not self.nodes[source_id].is_active:
-            print(f"Kaynak node {source_id} pasif!")
-            return False
-        packet = Packet(self.packet_counter, source_id, destination_id, data)
-        self.packet_counter += 1
-        print(f"\n>> PAKET GÖNDERİMİ: {packet}")
-        max_hops = 10
-        current_hop = 0
-        while current_hop < max_hops:
-            current_node_id = packet.path[-1]
             if current_node_id == destination_id:
                 self.delivered_packets.append(packet)
-                print(
-                    f"   >> PAKET TESLİM EDİLDİ! Yol: {' -> '.join(map(str, packet.path))}"
-                )
+                path_str = " -> ".join(map(str, packet.path))
+                print(f"   >> PAKET TESLİM EDİLDİ! Yol: {path_str}")
                 return True
 
             # Sonraki hop'u bul
             next_hop = self.dummy_routing(packet)
-
-            next_hop = self.dummy_routing(packet)
             if next_hop is None:
                 self.lost_packets.append(packet)
-                print(f"   >> PAKET KAYBOLDU! Son konum: {current_node_id}")
+                msg = f"   >> PAKET KAYBOLDU! Son konum: {current_node_id}"
+                print(msg)
                 return False
 
             # Paketi ilerlet
             packet.add_hop(next_hop)
             current_hop += 1
 
-            if current_hop >= max_hops:
-                self.lost_packets.append(packet)
-                print(f"   >> PAKET ZAMANAŞıMı! Maksimum hop sayısına ulaşıldı")
-                return False
+        # Max hops aşıldı
+        self.lost_packets.append(packet)
+        print("   >> PAKET ZAMAN AŞIMI! Maksimum hop sayısına ulaşıldı")
+        return False
 
+        # Max hops aşıldı
+        self.lost_packets.append(packet)
+        print("   >> PAKET ZAMAN AŞIMI! Maksimum hop sayısına ulaşıldı")
         return False
 
     def step(self, failure_rate: float = 0.02):
@@ -368,9 +329,11 @@ class Network:
 
         if len(active_nodes) >= 2:
             source = random.choice(active_nodes)
-            destination = random.choice([nid for nid in active_nodes if nid != source])
+            dest_options = [nid for nid in active_nodes if nid != source]
+            destination = random.choice(dest_options)
 
-            self.send_packet(source, destination, f"Adım {self.simulation_time} verisi")
+            msg = f"Adım {self.simulation_time} verisi"
+            self.send_packet(source, destination, msg)
 
     def get_network_stats(self) -> Dict:
         """Ağ istatistiklerini döndür"""
@@ -407,24 +370,24 @@ def test_network():
     network.create_network(num_nodes=10, communication_range=25.0)
 
     # Başlangıç istatistikleri
-    print(f"\n=== BAŞLANGIÇ İSTATİSTİKLERİ ===")
+    print("\n=== BAŞLANGIÇ İSTATİSTİKLERİ ===")
     stats = network.get_network_stats()
     for key, value in stats.items():
         print(f"{key}: {value}")
 
     # Manuel paket gönderimi testi
-    print(f"\n=== MANUEL PAKET GÖNDERİMİ ===")
-    active_nodes = [nid for nid, node in network.nodes.items() if node.is_active]
-    if len(active_nodes) >= 2:
-        network.send_packet(active_nodes[0], active_nodes[-1], "Test mesajı")
+    print("\n=== MANUEL PAKET GÖNDERİMİ ===")
+    active_list = [nid for nid, node in network.nodes.items() if node.is_active]
+    if len(active_list) >= 2:
+        network.send_packet(active_list[0], active_list[-1], "Test mesajı")
 
     # 3 adım simülasyon
-    print(f"\n=== SİMÜLASYON ADIMI ===")
+    print("\n=== SİMÜLASYON ADIMLARI ===")
     for i in range(3):
         network.step(failure_rate=0.1)  # %10 arıza oranı
 
     # Final istatistikler
-    print(f"\n=== FİNAL İSTATİSTİKLERİ ===")
+    print("\n=== FİNAL İSTATİSTİKLERİ ===")
     stats = network.get_network_stats()
     for key, value in stats.items():
         print(f"{key}: {value}")

@@ -1,4 +1,7 @@
+# src/ai/state_encoder.py
 import numpy as np
+import math
+from common.interfaces import NetworkObservation
 
 
 class StateEncoder:
@@ -7,53 +10,53 @@ class StateEncoder:
         # Her komşu için 3 özellik: [Sinyal, Enerji, Kuyruk]
         self.features_per_neighbor = 3
 
-        # Toplam State Boyutu:
-        # [Hedefe_Uzaklık (1)] + [Komşular (max * 3)]
+        # State Boyutu: [Hedefe_Uzaklık (1)] + [Komşular (max * 3)]
         self.state_dim = 1 + (self.max_neighbors * self.features_per_neighbor)
 
-    def encode(self, current_node, neighbors, destination):
+    def encode(self, observation: NetworkObservation):
         """
-        Simülasyon objelerini alır, Numpy Array (Vektör) döndürür.
+        Gelen 'NetworkObservation' veri paketini Numpy vektörüne çevirir.
         """
-        # 1. HEDEFE UZAKLIK (Normalize edilmiş)
-        # Örnek: Max harita boyutu 1000m ise 1000'e böl.
-        dist_to_dest = current_node.distance_to(destination) / 1000.0
+        # 1. HEDEFE UZAKLIK (Euclidean Distance)
+        curr_pos = observation.current_node.position
+        dest_pos = observation.destination_pos
 
-        # Vektörü başlat
-        state_vector = [dist_to_dest]
+        dist = math.sqrt(
+            (dest_pos[0] - curr_pos[0]) ** 2 + (dest_pos[1] - curr_pos[1]) ** 2
+        )
+
+        # Normalizasyon (Harita max 1000m varsayımıyla)
+        norm_dist = dist / 1000.0 if dist < 1000 else 1.0
+
+        state_vector = [norm_dist]
 
         # 2. KOMŞU BİLGİLERİNİ İŞLE
-        # Komşuları, hedefe yakınlıklarına göre sıralamak iyi bir pratiktir (Opsiyonel)
-        # neighbors.sort(key=lambda n: n.distance_to(destination))
-
         count = 0
-        for neighbor in neighbors:
+
+        for link in observation.neighbors:
             if count >= self.max_neighbors:
-                break  # 5'ten fazla komşu varsa, gerisine bakma.
+                break
 
-            # --- NORMALİZASYON (0 ile 1 arasına sıkıştır) ---
+            # Komşunun detay bilgilerini ID ile sözlükten çekiyoruz
+            neighbor_node = observation.neighbor_nodes.get(link.target_node_id)
 
-            # Sinyal (Örnek: -100dBm ile -40dBm arası) -> 0 ile 1 arası
-            # Formül: (Signal + 100) / 60 gibi bir şey olabilir.
-            # Şimdilik direkt attribute'dan geldiğini varsayalım:
-            norm_signal = neighbor.signal_quality  # 0.8 gibi
+            if neighbor_node:
+                # Sinyal Gücü (Zaten 0-1 arası geliyor)
+                s_signal = link.signal_strength
 
-            # Enerji (Zaten 0-1 arasıysa dokunma)
-            norm_energy = neighbor.battery_level  # 0.5 gibi
+                # Enerji (Zaten 0-1 arası)
+                s_energy = neighbor_node.battery_level
 
-            # Kuyruk Doluluğu (Queue Load)
-            # Eğer kuyrukta 10 paket var ve kapasite 20 ise -> 0.5
-            norm_queue = neighbor.queue_len / neighbor.queue_capacity
+                # Kuyruk (Zaten 0-1 arası)
+                s_queue = neighbor_node.queue_occupancy
 
-            # Listeye ekle
-            state_vector.extend([norm_signal, norm_energy, norm_queue])
-            count += 1
+                state_vector.extend([s_signal, s_energy, s_queue])
+                count += 1
 
         # 3. PADDING (Eksik kalan yerleri doldur)
-        # Eğer 2 komşu varsa, kalan 3 komşunun yerini -1 veya 0 ile doldur.
         remaining_slots = self.max_neighbors - count
         for _ in range(remaining_slots):
-            # Olmayan komşu için değerler: Sinyal=0, Enerji=0, Kuyruk=1 (Dolu gibi göster ki seçmesin)
+            # Boş slot: Sinyal=0, Enerji=0, Kuyruk=1 (Dolu - Gitme!)
             state_vector.extend([0.0, 0.0, 1.0])
 
         return np.array(state_vector, dtype=np.float32)

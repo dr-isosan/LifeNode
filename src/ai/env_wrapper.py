@@ -1,4 +1,4 @@
-4"""
+"""
 Environment Wrapper - Kişi A'nın simülasyonu ile Kişi B'nin AI ortamını birleştirir
 """
 
