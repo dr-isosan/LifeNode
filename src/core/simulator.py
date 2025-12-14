@@ -3,12 +3,13 @@
 Simulation Network Adapter
 Kişi A'nın Network simülasyonunu Kişi B'nin AI Environment'ına bağlar
 """
-from common.interfaces import (
+from src.common.interfaces import (
     SimulationEngineInterface,
     NetworkObservation,
     NodeState,
     LinkState,
 )
+from src.config.constants import SignalThresholds, BandwidthRatios, PhysicsConstants
 
 
 class SimulationNetworkAdapter(SimulationEngineInterface):
@@ -17,13 +18,20 @@ class SimulationNetworkAdapter(SimulationEngineInterface):
     SimulationEngineInterface'i implement eder.
     """
 
-    def __init__(self, network):
+    def __init__(self, network, communication_range: float = None):
         """
         Args:
             network: simulation.network.Network instance
+            communication_range: İletişim menzili (None ise network'ten alınır)
         """
         self.network = network
         self.current_packet = None
+
+        # Communication range'i network'ten al veya parametreyi kullan
+        if communication_range is None:
+            self.communication_range = getattr(network, 'communication_range', 30.0)
+        else:
+            self.communication_range = communication_range
 
     def get_observation(self, node_id: int, packet_dest: int) -> NetworkObservation:
         """
@@ -73,11 +81,13 @@ class SimulationNetworkAdapter(SimulationEngineInterface):
             # Calculate signal strength based on distance
             distance = current_node.distance_to(neighbor)
             signal_strength = self._calculate_signal_strength(
-                distance, communication_range=30.0
+                distance, communication_range=self.communication_range
             )
 
-            # Bandwidth capacity (mock for now, can be enhanced)
-            bandwidth = 10.0
+            # Bandwidth capacity - dinamik olarak hesapla
+            bandwidth = self._calculate_bandwidth(
+                distance, signal_strength, communication_range=self.communication_range
+            )
 
             # LinkState
             link = LinkState(
@@ -202,8 +212,8 @@ class SimulationNetworkAdapter(SimulationEngineInterface):
         - Base latency: 1ms
         - Distance penalty: 0.1ms per meter
         """
-        base_latency = 0.001  # 1ms
-        distance_penalty = distance * 0.0001  # 0.1ms per meter
+        base_latency = PhysicsConstants.BASE_LATENCY_MS / 1000.0  # Convert to seconds
+        distance_penalty = distance * (PhysicsConstants.LATENCY_PER_METER_MS / 1000.0) / 10.0
 
         return base_latency + distance_penalty
 
@@ -213,10 +223,51 @@ class SimulationNetworkAdapter(SimulationEngineInterface):
 
         Daha uzak mesafe = daha fazla enerji
         """
-        # Base cost: 0.5 energy
-        base_cost = 0.5
+        # Base cost
+        base_cost = PhysicsConstants.BASE_ENERGY_COST
 
-        # Distance cost: 0.01 per meter
-        distance_cost = distance * 0.01
+        # Distance cost
+        distance_cost = distance * PhysicsConstants.ENERGY_COST_PER_METER
 
         return base_cost + distance_cost
+
+    def _calculate_bandwidth(
+        self,
+        distance: float,
+        signal_strength: float,
+        communication_range: float,
+    ) -> float:
+        """
+        Mesafe ve sinyal gücüne göre bandwidth hesapla (Mbps)
+
+        Wireless mesh network bandwidth modeli:
+        - Max bandwidth: 54 Mbps (802.11g standardı)
+        - Sinyal gücü ve mesafeye göre adaptive modulation
+        - SNR'a göre farklı modulation schemes (BPSK, QPSK, 16-QAM, 64-QAM)
+        """
+        # Sinyal gücüne göre bandwidth oranı
+        # Yüksek sinyal = yüksek bandwidth
+        if signal_strength >= SignalThresholds.EXCELLENT:
+            # Excellent signal: 64-QAM modulation
+            bandwidth_ratio = BandwidthRatios.EXCELLENT_RATIO
+        elif signal_strength >= SignalThresholds.GOOD:
+            # Good signal: 16-QAM modulation
+            bandwidth_ratio = BandwidthRatios.GOOD_RATIO
+        elif signal_strength >= SignalThresholds.FAIR:
+            # Fair signal: QPSK modulation
+            bandwidth_ratio = BandwidthRatios.FAIR_RATIO
+        elif signal_strength >= SignalThresholds.WEAK:
+            # Weak signal: BPSK modulation
+            bandwidth_ratio = BandwidthRatios.WEAK_RATIO
+        else:
+            # Very weak signal: minimum bandwidth
+            bandwidth_ratio = BandwidthRatios.MINIMUM_RATIO
+
+        # Mesafe penalty (iletişim range'ine göre)
+        distance_factor = 1.0 - (distance / communication_range) * PhysicsConstants.DISTANCE_PENALTY_FACTOR
+        distance_factor = max(BandwidthRatios.MINIMUM_RATIO, distance_factor)
+
+        # Final bandwidth hesaplama
+        bandwidth = PhysicsConstants.MAX_BANDWIDTH_MBPS * bandwidth_ratio * distance_factor
+
+        return max(PhysicsConstants.MIN_BANDWIDTH_MBPS, bandwidth)

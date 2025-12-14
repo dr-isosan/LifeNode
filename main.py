@@ -14,12 +14,7 @@ def main():
 
     print("=" * 60)
     print("  LifeNode: Afet Durumu İletişim Ağı Simülasyonu")
-    print("  Hafta 1: Temel Ağ Simülasyonu")
-    print("=" * 60)
-
-    # Simülasyon parametreleri
-    print("=" * 60)
-    print("  LifeNode: Afet Durumu İletişim Ağı Simülasyonu")
+    print("  Hafta 2: Entegre Simülasyon ve AI Altyapısı")
     print("=" * 60)
 
     NUM_NODES = 20
@@ -46,12 +41,6 @@ def main():
     for key, value in stats.items():
         print(f"   {key}: {value}")
 
-    # Test paket gönderimler
-    NODE_FAILURE_RATE = 0.05
-
-    network = Network(width=AREA_WIDTH, height=AREA_HEIGHT)
-    network.create_network(num_nodes=NUM_NODES, communication_range=COMMUNICATION_RANGE)
-
     print(f"\n{'='*60}")
     print(">> TEST PAKET GÖNDERİMLERİ")
     active_nodes = [nid for nid, node in network.nodes.items() if node.is_active]
@@ -67,12 +56,6 @@ def main():
     # Simülasyon adımları
     print(f"\n{'='*60}")
     print(">> SİMÜLASYON ADIMLARI (5 adım)")
-    for i in range(5):
-        network.step(failure_rate=NODE_FAILURE_RATE)
-
-    # Final istatistikleri
-    print(f"\n{'='*60}")
-    print(">> SİMÜLASYON ADIMLARI")
     for i in range(5):
         network.step(failure_rate=NODE_FAILURE_RATE)
 
@@ -119,41 +102,7 @@ def main():
     return network, visualizer
 
 
-def run_quick_test():
-    """Hızlı test fonksiyonu (görselleştirme olmadan)"""
-    print("=== HIZLI TEST MODU ===\n")
 
-    network = Network(width=50.0, height=50.0)
-    network.create_network(num_nodes=10, communication_range=20.0)
-
-    print(f"\n{'='*60}")
-    print(">> GÖRSELLEŞTİRME")
-    try:
-        visualizer = NetworkVisualizer(figsize=(14, 12))
-
-        # 1. Ağ görselleştirmesi (otomatik kaydedilir)
-        print("   Ağ topolojisi çiziliyor ve kaydediliyor...")
-        visualizer.plot_network(network, title="LifeNode Ağ Topolojisi")
-
-        # 2. Paket yollarını göster
-        if network.delivered_packets:
-            print(
-                f"   Teslim edilen paket yolları çiziliyor ({len(network.delivered_packets)} adet)..."
-            )
-            for packet in network.delivered_packets[:3]:
-                visualizer.plot_packet_path(
-                    network,
-                    packet.path,
-                    title=f"Paket {packet.id}: {packet.source} -> {packet.destination}",
-                )
-
-        print("   >> Tüm görseller visualization/outputs/ klasörüne kaydedildi!")
-    except Exception as e:
-        print(f"   Hata: {e}")
-
-    print(f"\n{'='*60}")
-    print("  Simülasyon Tamamlandı!")
-    return network
 
 
 def run_quick_test():
@@ -172,8 +121,6 @@ def run_quick_test():
 
     print("\n>> Hızlı test tamamlandı!")
     return network
-
-
 
 
 if __name__ == "__main__":

@@ -196,15 +196,23 @@ class LifeNodeEnv(gym.Env):
             }
             return self._get_state(), reward, done, truncated, info
 
-        # Devam ediyoruz
+        # Devam ediyoruz - intermediate step
         target_node = self.sim_engine.network.nodes[target_node_id]
         energy_level = target_node.battery_level
+
+        # Seçilen link bilgilerini al (signal, bandwidth)
+        signal_strength = target_link.signal_strength
+        bandwidth = target_link.bandwidth_capacity
+        queue_occupancy = target_node.queue_len / target_node.queue_capacity
 
         reward = self.reward_system.calculate_reward(
             success=False,
             energy_level=energy_level,
             hop_count=self.steps_taken,
             failed=False,
+            signal_strength=signal_strength,  # YENİ!
+            bandwidth=bandwidth,  # YENİ!
+            queue_occupancy=queue_occupancy,  # YENİ!
         )
 
         done = False
@@ -223,6 +231,19 @@ class LifeNodeEnv(gym.Env):
                 self.current_node_id, self.destination_id
             )
             return self.encoder.encode(observation)
-        except Exception:
+        except (KeyError, ValueError, AttributeError) as e:
+            # Spesifik hatalar için loglama
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(
+                f"State encoding failed: {e}, "
+                f"node_id={self.current_node_id}, dest={self.destination_id}"
+            )
             # Hata durumunda sıfırlarla doldurulmuş state döndür
+            return np.zeros(self.observation_space.shape, dtype=np.float32)
+        except Exception as e:
+            # Beklenmeyen hatalar
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.critical(f"Unexpected error in state encoding: {type(e).__name__}: {e}")
             return np.zeros(self.observation_space.shape, dtype=np.float32)

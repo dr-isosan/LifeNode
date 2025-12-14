@@ -5,17 +5,19 @@ import torch.nn.functional as F
 import numpy as np
 import random
 from .model import DQN
-from .memory import ReplayBuffer  # <--- YENİ PARÇA
+from .memory import ReplayBuffer
+from src.config.constants import AITrainingConfig
 
 
 class DQNAgent:
-    def __init__(self, state_dim, action_dim, lr=1e-3, gamma=0.99, buffer_size=10000):
+    def __init__(self, state_dim, action_dim, lr=AITrainingConfig.LEARNING_RATE,
+                 gamma=AITrainingConfig.GAMMA, buffer_size=AITrainingConfig.REPLAY_BUFFER_SIZE):
         # 1. TEMEL AYARLAR
         self.gamma = gamma
-        self.epsilon = 1.0
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.batch_size = 64
+        self.epsilon = AITrainingConfig.EPSILON_START
+        self.epsilon_min = AITrainingConfig.EPSILON_MIN
+        self.epsilon_decay = AITrainingConfig.EPSILON_DECAY
+        self.batch_size = AITrainingConfig.BATCH_SIZE
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # 2. SİNİR AĞLARI (Brain)
@@ -26,7 +28,7 @@ class DQNAgent:
 
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=lr)
 
-        # 3. PROFESYONEL HAFIZA MODÜLÜ (Entegrasyon Burada)
+        # 3. PROFESYONEL HAFIZA MODÜLÜ
         self.memory = ReplayBuffer(capacity=buffer_size, device=self.device)
 
     def act(self, state):

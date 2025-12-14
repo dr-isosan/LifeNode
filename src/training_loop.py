@@ -3,19 +3,26 @@
 LifeNode AI Eğitim Döngüsü
 Gerçek simülasyon ile entegre DQN eğitimi
 """
+import sys
+import os
+
+# Proje kök dizinini path'e ekle
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import numpy as np
 from simulation.network import Network
 from src.core.simulator import SimulationNetworkAdapter
-from ai.env import LifeNodeEnv
-from ai.agent import DQNAgent
+from src.ai.env import LifeNodeEnv
+from src.ai.agent import DQNAgent
+from src.config.constants import AITrainingConfig, NetworkConstants
 
-# AYARLAR (İleride config.yaml'dan gelecek)
-EPISODES = 100
-MAX_STEPS = 50
-BATCH_SIZE = 64
-NUM_NODES = 20
-COMMUNICATION_RANGE = 30.0
-TARGET_UPDATE_FREQ = 10
+# AYARLAR (Constants'tan alınıyor)
+EPISODES = AITrainingConfig.DEFAULT_EPISODES
+MAX_STEPS = AITrainingConfig.MAX_STEPS_PER_EPISODE
+BATCH_SIZE = AITrainingConfig.BATCH_SIZE
+NUM_NODES = NetworkConstants.DEFAULT_NUM_NODES
+COMMUNICATION_RANGE = NetworkConstants.DEFAULT_COMMUNICATION_RANGE
+TARGET_UPDATE_FREQ = AITrainingConfig.TARGET_UPDATE_FREQUENCY
 
 
 def main():
@@ -24,7 +31,10 @@ def main():
 
     # 1. Network simülasyonunu oluştur
     print("\n[1/4] Network simülasyonu oluşturuluyor...")
-    network = Network(width=100.0, height=100.0)
+    network = Network(
+        width=NetworkConstants.DEFAULT_AREA_WIDTH,
+        height=NetworkConstants.DEFAULT_AREA_HEIGHT
+    )
     network.create_network(num_nodes=NUM_NODES, communication_range=COMMUNICATION_RANGE)
     print(f"✓ {NUM_NODES} node ile ağ oluşturuldu")
 
@@ -35,14 +45,19 @@ def main():
 
     # 3. RL Environment'ı oluştur
     print("\n[3/4] RL Environment oluşturuluyor...")
-    env = LifeNodeEnv(sim_engine=sim_adapter, max_neighbors=5)
+    env = LifeNodeEnv(sim_engine=sim_adapter, max_neighbors=AITrainingConfig.MAX_NEIGHBORS)
     print(f"✓ Environment hazır (State dim: {env.observation_space.shape})")
 
     # 4. DQN Agent'ı oluştur
     print("\n[4/4] DQN Agent oluşturuluyor...")
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.n
-    agent = DQNAgent(state_dim, action_dim, lr=1e-3, gamma=0.99)
+    agent = DQNAgent(
+        state_dim,
+        action_dim,
+        lr=AITrainingConfig.LEARNING_RATE,
+        gamma=AITrainingConfig.GAMMA
+    )
     print(f"✓ Agent hazır (State: {state_dim}, Actions: {action_dim})")
 
     print("\n" + "=" * 60)

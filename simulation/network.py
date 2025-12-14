@@ -1,9 +1,19 @@
 import random
 import time
-from typing import Dict, Optional, Tuple
+import sys
+import os
+from typing import Dict, Optional, Tuple, List
 import networkx as nx
 from .node import Node
 from .topology import TopologyGenerator
+
+# Logger için path ekle
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from src.utils.logger import get_logger  # noqa: E402
+from src.config.constants import NetworkConstants  # noqa: E402
+
+# Global logger
+logger = get_logger("Network", log_to_file=False)
 
 
 class Packet:
@@ -59,6 +69,7 @@ class Network:
         self.packet_counter = 0
         self.delivered_packets = []
         self.lost_packets = []
+        self.communication_range = NetworkConstants.DEFAULT_COMMUNICATION_RANGE
 
     def create_network(self, num_nodes: int, communication_range: float):
         """
@@ -68,7 +79,10 @@ class Network:
             num_nodes: Düğüm sayısı
             communication_range: İletişim menzili
         """
-        print("=== AĞ OLUŞTURULUYOR ===")
+        logger.info("=== AĞ OLUŞTURULUYOR ===")
+
+        # Communication range'i sakla
+        self.communication_range = communication_range
 
         # Topoloji üret
         nodes_list, graph = self.topology_generator.create_random_topology(
@@ -79,7 +93,7 @@ class Network:
         self.nodes = {node.id: node for node in nodes_list}
         self.graph = graph
 
-        print(f">> Ağ oluşturuldu: {len(self.nodes)} düğüm")
+        logger.info(f">> Ağ oluşturuldu: {len(self.nodes)} düğüm")
 
     def add_node(
         self,
@@ -163,14 +177,18 @@ class Network:
                     failures.append(node_id)
                 else:
                     # Bazen bozuk düğümler tamir olabilir
-                    if random.random() < 0.5:  # %50 şans
+                    if random.random() < NetworkConstants.NODE_REPAIR_CHANCE:
                         node.repair()
                         repairs.append(node_id)
 
         if failures:
-            print(f">> Node arızaları: {failures}")
+            logger.warning(f">> Node arızaları: {failures}")
+            # Komşu listelerini güncelle
+            self.update_neighbors_after_failures(failures)
         if repairs:
-            print(f">> Node tamirler: {repairs}")
+            logger.info(f">> Node tamirler: {repairs}")
+            # Komşu listelerini güncelle
+            self.update_neighbors_after_repairs(repairs)
 
         return failures, repairs
 
@@ -213,7 +231,7 @@ class Network:
 
         # Basit stratejiler:
         # 1. Rastgele komşu seç
-        if random.random() < 0.7:  # %70 ihtimalle rastgele
+        if random.random() < NetworkConstants.RANDOM_ROUTING_PROBABILITY:
             next_hop = random.choice(active_neighbors)
             msg = f"   Node {current_node_id}: " f"Rastgele komşu seçildi -> {next_hop}"
             print(msg)
@@ -273,8 +291,8 @@ class Network:
 
         print(f"\n>> PAKET GÖNDERİMİ: {packet}")
 
-        # Paket routing simülasyonu (maksimum 10 hop)
-        max_hops = 10
+        # Paket routing simülasyonu
+        max_hops = NetworkConstants.MAX_PACKET_HOPS
         current_hop = 0
 
         while current_hop < max_hops:
@@ -304,10 +322,7 @@ class Network:
         print("   >> PAKET ZAMAN AŞIMI! Maksimum hop sayısına ulaşıldı")
         return False
 
-        # Max hops aşıldı
-        self.lost_packets.append(packet)
-        print("   >> PAKET ZAMAN AŞIMI! Maksimum hop sayısına ulaşıldı")
-        return False
+
 
     def step(self, failure_rate: float = 0.02):
         """
@@ -317,7 +332,7 @@ class Network:
             failure_rate: Node arıza oranı
         """
         self.simulation_time += 1
-        print(f"\n=== SİMÜLASYON ADIMI {self.simulation_time} ===")
+        logger.debug(f"=== SİMÜLASYON ADIMI {self.simulation_time} ===")
 
         # Node arızalarını simüle et
         self.simulate_node_failure(failure_rate)
@@ -357,6 +372,51 @@ class Network:
                 else False
             ),
         }
+
+    def update_neighbors_after_failures(self, failed_node_ids: List[int]):
+        """
+        Node arızalarından sonra komşu listelerini güncelle
+
+        Args:
+            failed_node_ids: Arızalanan node ID'leri
+        """
+        for failed_id in failed_node_ids:
+            # Arızalanan node'un tüm komşularını güncelle
+            if failed_id in self.nodes:
+                failed_node = self.nodes[failed_id]
+                for neighbor_id in list(failed_node.neighbors):
+                    if neighbor_id in self.nodes:
+                        neighbor = self.nodes[neighbor_id]
+                        # Arızalı node'u komşu listesinden çıkar
+                        if failed_id in neighbor.neighbors:
+                            neighbor.neighbors.remove(failed_id)
+
+    def update_neighbors_after_repairs(self, repaired_node_ids: List[int]):
+        """
+        Node tamirlerinden sonra komşu listelerini yeniden oluştur
+
+        Args:
+            repaired_node_ids: Tamir edilen node ID'leri
+        """
+        for repaired_id in repaired_node_ids:
+            if repaired_id not in self.nodes:
+                continue
+
+            repaired_node = self.nodes[repaired_id]
+
+            # Tamir edilen node için komşuları yeniden hesapla
+            for other_id, other_node in self.nodes.items():
+                if other_id == repaired_id:
+                    continue
+
+                # Mesafe kontrolü
+                distance = repaired_node.distance_to(other_node)
+                if distance <= self.communication_range:
+                    # İki yönlü komşuluk ekle
+                    if other_id not in repaired_node.neighbors:
+                        repaired_node.neighbors.append(other_id)
+                    if repaired_id not in other_node.neighbors and other_node.is_active:
+                        other_node.neighbors.append(repaired_id)
 
 
 def test_network():

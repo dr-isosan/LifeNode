@@ -1,14 +1,15 @@
 # src/ai/state_encoder.py
 import numpy as np
 import math
-from common.interfaces import NetworkObservation
+from src.common.interfaces import NetworkObservation
+from src.config.constants import StateEncoderConfig
 
 
 class StateEncoder:
     def __init__(self, max_neighbors=5):
         self.max_neighbors = max_neighbors
         # Her komşu için 3 özellik: [Sinyal, Enerji, Kuyruk]
-        self.features_per_neighbor = 3
+        self.features_per_neighbor = StateEncoderConfig.FEATURES_PER_NEIGHBOR
 
         # State Boyutu: [Hedefe_Uzaklık (1)] + [Komşular (max * 3)]
         self.state_dim = 1 + (self.max_neighbors * self.features_per_neighbor)
@@ -25,8 +26,8 @@ class StateEncoder:
             (dest_pos[0] - curr_pos[0]) ** 2 + (dest_pos[1] - curr_pos[1]) ** 2
         )
 
-        # Normalizasyon (Harita max 1000m varsayımıyla)
-        norm_dist = dist / 1000.0 if dist < 1000 else 1.0
+        # Normalizasyon
+        norm_dist = dist / StateEncoderConfig.MAX_DISTANCE_METERS if dist < StateEncoderConfig.MAX_DISTANCE_METERS else 1.0
 
         state_vector = [norm_dist]
 
