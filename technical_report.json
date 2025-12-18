@@ -1,0 +1,1276 @@
+{
+  "metadata": {
+    "report_date": "2025-12-14 14:26:13",
+    "project_name": "LifeNode",
+    "project_path": "C:\\Users\\ahmet\\Desktop\\LifeNode",
+    "current_branch": "main",
+    "total_commits": "19",
+    "repository_url": "https://github.com/dr-isosan/LifeNode"
+  },
+  "commits": [
+    {
+      "hash": "d05fc53f",
+      "full_hash": "d05fc53f3dea530ff6c76a1358afccfb861dab75",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-14 13:01:57 +0300",
+      "message": "second week improved",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "WEEK2_REVIEW.md",
+          "added": 414,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 1,
+          "removed": 54
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 74,
+          "removed": 14
+        },
+        {
+          "path": "src/ai/agent.py",
+          "added": 9,
+          "removed": 7
+        },
+        {
+          "path": "src/ai/env.py",
+          "added": 23,
+          "removed": 2
+        },
+        {
+          "path": "src/ai/reward.py",
+          "added": 91,
+          "removed": 27
+        },
+        {
+          "path": "src/ai/state_encoder.py",
+          "added": 5,
+          "removed": 4
+        },
+        {
+          "path": "src/config/__init__.py",
+          "added": 23,
+          "removed": 0
+        },
+        {
+          "path": "src/config/constants.py",
+          "added": 121,
+          "removed": 0
+        },
+        {
+          "path": "src/core/simulator.py",
+          "added": 62,
+          "removed": 11
+        },
+        {
+          "path": "src/training_loop.py",
+          "added": 27,
+          "removed": 12
+        },
+        {
+          "path": "src/utils/logger.py",
+          "added": 173,
+          "removed": 0
+        },
+        {
+          "path": "test_week2_features.py",
+          "added": 216,
+          "removed": 0
+        }
+      ],
+      "lines_added": 1239,
+      "lines_removed": 131
+    },
+    {
+      "hash": "4a3b6bcb",
+      "full_hash": "4a3b6bcb9e73d8c5a0a14ba9a0c5c9f5243d2ee7",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-12 16:51:16 +0300",
+      "message": "second week",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "simulation/network.py",
+          "added": 55,
+          "removed": 92
+        },
+        {
+          "path": "src/ai/agent.py",
+          "added": 35,
+          "removed": 55
+        },
+        {
+          "path": "src/ai/env.py",
+          "added": 195,
+          "removed": 38
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 1,
+          "removed": 1
+        },
+        {
+          "path": "src/ai/memory.py",
+          "added": 40,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/state_encoder.py",
+          "added": 32,
+          "removed": 29
+        },
+        {
+          "path": "src/common/interfaces.py",
+          "added": 46,
+          "removed": 0
+        },
+        {
+          "path": "src/core/simulator.py",
+          "added": 222,
+          "removed": 0
+        },
+        {
+          "path": "src/training_loop.py",
+          "added": 120,
+          "removed": 0
+        },
+        {
+          "path": "tests/test_rl.py",
+          "added": 127,
+          "removed": 0
+        }
+      ],
+      "lines_added": 873,
+      "lines_removed": 215
+    },
+    {
+      "hash": "6277fe6f",
+      "full_hash": "6277fe6fd4326ba133934495bb37f234c33f77c7",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-08 15:57:38 +0300",
+      "message": "first week",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "docs/rl_design.md",
+          "added": 505,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 3,
+          "removed": 11
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 56,
+          "removed": 56
+        },
+        {
+          "path": "simulation/node.py",
+          "added": 79,
+          "removed": 36
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 198,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/reward.py",
+          "added": 8,
+          "removed": 4
+        },
+        {
+          "path": "test_integration.py",
+          "added": 137,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 33,
+          "removed": 134
+        }
+      ],
+      "lines_added": 1019,
+      "lines_removed": 241
+    },
+    {
+      "hash": "5994d557",
+      "full_hash": "5994d5573f4f03b66df1ca70dfab9b2e88ae77df",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-08 13:37:05 +0300",
+      "message": "merged",
+      "body": "",
+      "files_changed": [
+        {
+          "path": ".gitignore",
+          "added": 6,
+          "removed": 1
+        },
+        {
+          "path": "README.md",
+          "added": 1,
+          "removed": 0
+        },
+        {
+          "path": "docs/architecture.md",
+          "added": 26,
+          "removed": 2
+        },
+        {
+          "path": "main.py",
+          "added": 92,
+          "removed": 30
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 157,
+          "removed": 71
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 164,
+          "removed": 63
+        }
+      ],
+      "lines_added": 446,
+      "lines_removed": 167
+    },
+    {
+      "hash": "03c4696b",
+      "full_hash": "03c4696b32b1b52da98cf119a4e0ac34ba52044b",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-08 13:27:00 +0300",
+      "message": "Merge branch 'main' of https://github.com/dr-isosan/LifeNode into iso",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "docs/architecture.md",
+          "added": 345,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 129,
+          "removed": 0
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 350,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 324,
+          "removed": 0
+        }
+      ],
+      "lines_added": 1148,
+      "lines_removed": 0
+    },
+    {
+      "hash": "a7d74d2c",
+      "full_hash": "a7d74d2c2c21ae72a2bd37c3c1958468514b44c7",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-08 13:21:20 +0300",
+      "message": "first week ai features",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "src/ai/agent.py",
+          "added": 102,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/env.py",
+          "added": 71,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/model.py",
+          "added": 32,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/reward.py",
+          "added": 35,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/state_encoder.py",
+          "added": 59,
+          "removed": 0
+        }
+      ],
+      "lines_added": 299,
+      "lines_removed": 0
+    },
+    {
+      "hash": "85e7eb55",
+      "full_hash": "85e7eb55f0290c73c426f58ffb994a15a2da27de",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 18:02:42 +0300",
+      "message": "Gorsellestirme isimlendirme sistemi iyilestirildi - session ID eklendi",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 12,
+          "removed": 5
+        }
+      ],
+      "lines_added": 12,
+      "lines_removed": 5
+    },
+    {
+      "hash": "8e610490",
+      "full_hash": "8e610490afc5d3b581dfe0112bd129cc7e206b9b",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 17:48:33 +0300",
+      "message": "Gorsellestirme otomatik kayit sistemi eklendi",
+      "body": "",
+      "files_changed": [
+        {
+          "path": ".gitignore",
+          "added": 7,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 20,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 34,
+          "removed": 7
+        }
+      ],
+      "lines_added": 61,
+      "lines_removed": 7
+    },
+    {
+      "hash": "3e8ff2be",
+      "full_hash": "3e8ff2bef33e88d9734d60b0f709bb3135e8f92e",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 17:42:50 +0300",
+      "message": "Hafta 1 tamamlandi: Network simulasyonu, gorsellestime ve dokumantasyon (Kisi A)",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "docs/architecture.md",
+          "added": 26,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 68,
+          "removed": 0
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 154,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 77,
+          "removed": 0
+        }
+      ],
+      "lines_added": 325,
+      "lines_removed": 0
+    },
+    {
+      "hash": "fffc3ed4",
+      "full_hash": "fffc3ed477fdd9f86bf3d2702485b03cd6b73af7",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-05 17:26:33 +0300",
+      "message": "created requirements",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "requirements.txt",
+          "added": 26,
+          "removed": 1
+        }
+      ],
+      "lines_added": 26,
+      "lines_removed": 1
+    },
+    {
+      "hash": "58c42702",
+      "full_hash": "58c4270201574c34e53801435f144bba46a4aed2",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 17:22:10 +0300",
+      "message": "Task 1 ve 2 tamamlandı: Node sınıfı ve Topology üretici eklendi",
+      "body": "",
+      "files_changed": [
+        {
+          "path": ".gitignore",
+          "added": 38,
+          "removed": 0
+        },
+        {
+          "path": "requirements.txt",
+          "added": 4,
+          "removed": 0
+        },
+        {
+          "path": "simulation/__init__.py",
+          "added": 2,
+          "removed": 0
+        },
+        {
+          "path": "simulation/node.py",
+          "added": 140,
+          "removed": 0
+        },
+        {
+          "path": "simulation/topology.py",
+          "added": 208,
+          "removed": 0
+        },
+        {
+          "path": "visualization/__init__.py",
+          "added": 2,
+          "removed": 0
+        }
+      ],
+      "lines_added": 394,
+      "lines_removed": 0
+    },
+    {
+      "hash": "141a62cf",
+      "full_hash": "141a62cf89f14da7684a56a3648b04cc0e006d8c",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 16:48:17 +0300",
+      "message": "added documents",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "\"4 Haftal\\304\\261k LifeNode Proje.txt\" => \"documents/4 Haftal\\304\\261k LifeNode Proje.txt\"",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "conceptnote_ishakduran.pdf => documents/conceptnote_ishakduran.pdf",
+          "added": 0,
+          "removed": 0
+        }
+      ],
+      "lines_added": 0,
+      "lines_removed": 0
+    },
+    {
+      "hash": "63dfc8f2",
+      "full_hash": "63dfc8f27cef9c8836a0460de0de06ffaeee6a80",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 16:46:31 +0300",
+      "message": "Initial commit",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "\"4 Haftal\\304\\261k LifeNode Proje.txt\"",
+          "added": 145,
+          "removed": 0
+        },
+        {
+          "path": "checkoints/dqn_v1.pth",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "conceptnote_ishakduran.pdf",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "configs/congig.yaml",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "main_demo.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "main_train.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "requirements.txt",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "results/logs.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "results/plots.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/model.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/reward.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/node.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/packet.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/simulator.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/topology.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/logger.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/metrics.py",
+          "added": 0,
+          "removed": 0
+        }
+      ],
+      "lines_added": 145,
+      "lines_removed": 0
+    },
+    {
+      "hash": "f8ff610d",
+      "full_hash": "f8ff610d950379bf95bf41559329805c74e845f6",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 17:36:40 +0300",
+      "message": "İlk hafta tamamlandı: Network simülasyonu, görselleştirme ve dokümantasyon eklendi",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "docs/architecture.md",
+          "added": 345,
+          "removed": 0
+        },
+        {
+          "path": "main.py",
+          "added": 129,
+          "removed": 0
+        },
+        {
+          "path": "simulation/network.py",
+          "added": 350,
+          "removed": 0
+        },
+        {
+          "path": "visualization/plot_utils.py",
+          "added": 324,
+          "removed": 0
+        }
+      ],
+      "lines_added": 1148,
+      "lines_removed": 0
+    },
+    {
+      "hash": "8e6ec4da",
+      "full_hash": "8e6ec4da0883d22ca2798519a36f60b4127687c4",
+      "author": "dr-isosan",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-05 17:26:33 +0300",
+      "message": "created requirements",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "requirements.txt",
+          "added": 26,
+          "removed": 1
+        }
+      ],
+      "lines_added": 26,
+      "lines_removed": 1
+    },
+    {
+      "hash": "543c1f8e",
+      "full_hash": "543c1f8ec159bbdd953dc2dae09c5f3626f77223",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 17:22:10 +0300",
+      "message": "Task 1 ve 2 tamamlandı: Node sınıfı ve Topology üretici eklendi",
+      "body": "",
+      "files_changed": [
+        {
+          "path": ".gitignore",
+          "added": 38,
+          "removed": 0
+        },
+        {
+          "path": "requirements.txt",
+          "added": 4,
+          "removed": 0
+        },
+        {
+          "path": "simulation/__init__.py",
+          "added": 2,
+          "removed": 0
+        },
+        {
+          "path": "simulation/node.py",
+          "added": 140,
+          "removed": 0
+        },
+        {
+          "path": "simulation/topology.py",
+          "added": 208,
+          "removed": 0
+        },
+        {
+          "path": "visualization/__init__.py",
+          "added": 2,
+          "removed": 0
+        }
+      ],
+      "lines_added": 394,
+      "lines_removed": 0
+    },
+    {
+      "hash": "058794d1",
+      "full_hash": "058794d15f60cbe454c478bd62be287347b13b42",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 16:48:17 +0300",
+      "message": "added documents",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "\"4 Haftal\\304\\261k LifeNode Proje.txt\" => \"documents/4 Haftal\\304\\261k LifeNode Proje.txt\"",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "conceptnote_ishakduran.pdf => documents/conceptnote_ishakduran.pdf",
+          "added": 0,
+          "removed": 0
+        }
+      ],
+      "lines_added": 0,
+      "lines_removed": 0
+    },
+    {
+      "hash": "eebfaf02",
+      "full_hash": "eebfaf023949faa87563fa7372b27026b0a0a563",
+      "author": "dr-isosan",
+      "email": "dr.isosan@example.com",
+      "date": "2025-12-05 16:46:31 +0300",
+      "message": "Initial commit",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "\"4 Haftal\\304\\261k LifeNode Proje.txt\"",
+          "added": 145,
+          "removed": 0
+        },
+        {
+          "path": "README.md",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "checkoints/dqn_v1.pth",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "conceptnote_ishakduran.pdf",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "configs/congig.yaml",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "main_demo.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "main_train.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "requirements.txt",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "results/logs.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "results/plots.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/env_wrapper.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/model.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/ai/reward.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/node.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/packet.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/simulator.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/core/topology.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/__init__.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/logger.py",
+          "added": 0,
+          "removed": 0
+        },
+        {
+          "path": "src/utils/metrics.py",
+          "added": 0,
+          "removed": 0
+        }
+      ],
+      "lines_added": 145,
+      "lines_removed": 0
+    },
+    {
+      "hash": "dc7915bc",
+      "full_hash": "dc7915bc9058f7e395565eef3b422147554c14b7",
+      "author": "isaku",
+      "email": "ishakudrn@gmail.com",
+      "date": "2025-12-04 19:22:49 +0300",
+      "message": "Initial commit",
+      "body": "",
+      "files_changed": [
+        {
+          "path": "README.md",
+          "added": 1,
+          "removed": 0
+        }
+      ],
+      "lines_added": 1,
+      "lines_removed": 0
+    }
+  ],
+  "file_changes": {
+    "WEEK2_REVIEW.md": {
+      "total_commits": 1,
+      "total_added": 414,
+      "total_removed": 0,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "main.py": {
+      "total_commits": 7,
+      "total_added": 442,
+      "total_removed": 95,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "simulation/network.py": {
+      "total_commits": 7,
+      "total_added": 1196,
+      "total_removed": 233,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/ai/agent.py": {
+      "total_commits": 3,
+      "total_added": 146,
+      "total_removed": 62,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/ai/env.py": {
+      "total_commits": 3,
+      "total_added": 289,
+      "total_removed": 40,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/ai/reward.py": {
+      "total_commits": 5,
+      "total_added": 134,
+      "total_removed": 31,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/ai/state_encoder.py": {
+      "total_commits": 3,
+      "total_added": 96,
+      "total_removed": 33,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/config/__init__.py": {
+      "total_commits": 1,
+      "total_added": 23,
+      "total_removed": 0,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/config/constants.py": {
+      "total_commits": 1,
+      "total_added": 121,
+      "total_removed": 0,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/core/simulator.py": {
+      "total_commits": 4,
+      "total_added": 284,
+      "total_removed": 11,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/training_loop.py": {
+      "total_commits": 2,
+      "total_added": 147,
+      "total_removed": 12,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/utils/logger.py": {
+      "total_commits": 3,
+      "total_added": 173,
+      "total_removed": 0,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "test_week2_features.py": {
+      "total_commits": 1,
+      "total_added": 216,
+      "total_removed": 0,
+      "last_modified": "2025-12-14 13:01:57 +0300"
+    },
+    "src/ai/env_wrapper.py": {
+      "total_commits": 6,
+      "total_added": 199,
+      "total_removed": 1,
+      "last_modified": "2025-12-12 16:51:16 +0300"
+    },
+    "src/ai/memory.py": {
+      "total_commits": 1,
+      "total_added": 40,
+      "total_removed": 0,
+      "last_modified": "2025-12-12 16:51:16 +0300"
+    },
+    "src/common/interfaces.py": {
+      "total_commits": 1,
+      "total_added": 46,
+      "total_removed": 0,
+      "last_modified": "2025-12-12 16:51:16 +0300"
+    },
+    "tests/test_rl.py": {
+      "total_commits": 1,
+      "total_added": 127,
+      "total_removed": 0,
+      "last_modified": "2025-12-12 16:51:16 +0300"
+    },
+    "docs/rl_design.md": {
+      "total_commits": 1,
+      "total_added": 505,
+      "total_removed": 0,
+      "last_modified": "2025-12-08 15:57:38 +0300"
+    },
+    "simulation/node.py": {
+      "total_commits": 3,
+      "total_added": 359,
+      "total_removed": 36,
+      "last_modified": "2025-12-08 15:57:38 +0300"
+    },
+    "test_integration.py": {
+      "total_commits": 1,
+      "total_added": 137,
+      "total_removed": 0,
+      "last_modified": "2025-12-08 15:57:38 +0300"
+    },
+    "visualization/plot_utils.py": {
+      "total_commits": 7,
+      "total_added": 968,
+      "total_removed": 209,
+      "last_modified": "2025-12-08 15:57:38 +0300"
+    },
+    ".gitignore": {
+      "total_commits": 4,
+      "total_added": 89,
+      "total_removed": 1,
+      "last_modified": "2025-12-08 13:37:05 +0300"
+    },
+    "README.md": {
+      "total_commits": 3,
+      "total_added": 2,
+      "total_removed": 0,
+      "last_modified": "2025-12-08 13:37:05 +0300"
+    },
+    "docs/architecture.md": {
+      "total_commits": 4,
+      "total_added": 742,
+      "total_removed": 2,
+      "last_modified": "2025-12-08 13:37:05 +0300"
+    },
+    "src/ai/model.py": {
+      "total_commits": 3,
+      "total_added": 32,
+      "total_removed": 0,
+      "last_modified": "2025-12-08 13:21:20 +0300"
+    },
+    "requirements.txt": {
+      "total_commits": 6,
+      "total_added": 60,
+      "total_removed": 2,
+      "last_modified": "2025-12-05 17:26:33 +0300"
+    },
+    "simulation/__init__.py": {
+      "total_commits": 2,
+      "total_added": 4,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 17:22:10 +0300"
+    },
+    "simulation/topology.py": {
+      "total_commits": 2,
+      "total_added": 416,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 17:22:10 +0300"
+    },
+    "visualization/__init__.py": {
+      "total_commits": 2,
+      "total_added": 4,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 17:22:10 +0300"
+    },
+    "\"4 Haftal\\304\\261k LifeNode Proje.txt\" => \"documents/4 Haftal\\304\\261k LifeNode Proje.txt\"": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:48:17 +0300"
+    },
+    "conceptnote_ishakduran.pdf => documents/conceptnote_ishakduran.pdf": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:48:17 +0300"
+    },
+    "\"4 Haftal\\304\\261k LifeNode Proje.txt\"": {
+      "total_commits": 2,
+      "total_added": 290,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "checkoints/dqn_v1.pth": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "conceptnote_ishakduran.pdf": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "configs/congig.yaml": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "main_demo.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "main_train.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "results/logs.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "results/plots.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/__init__.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/ai/__init__.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/core/__init__.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/core/node.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/core/packet.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/core/topology.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/utils/__init__.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    },
+    "src/utils/metrics.py": {
+      "total_commits": 2,
+      "total_added": 0,
+      "total_removed": 0,
+      "last_modified": "2025-12-05 16:46:31 +0300"
+    }
+  },
+  "contributors": {
+    "dr-isosan": {
+      "commits": 18,
+      "lines_added": 7700,
+      "lines_removed": 768
+    },
+    "isaku": {
+      "commits": 1,
+      "lines_added": 1,
+      "lines_removed": 0
+    }
+  },
+  "branches": [
+    {
+      "name": "ahmet",
+      "type": "local",
+      "is_current": false
+    },
+    {
+      "name": "main",
+      "type": "local",
+      "is_current": true
+    },
+    {
+      "name": "ahmet",
+      "type": "remote",
+      "is_current": false
+    },
+    {
+      "name": "main",
+      "type": "remote",
+      "is_current": false
+    }
+  ],
+  "code_metrics": {
+    "total_python_files": 36,
+    "total_lines_of_code": 3902,
+    "files_by_category": {
+      "other": 27,
+      "tests": 3,
+      "simulation": 4,
+      "visualization": 2
+    },
+    "largest_files": [
+      {
+        "path": "generate_technical_report.py",
+        "lines": 574
+      },
+      {
+        "path": "simulation\\network.py",
+        "lines": 459
+      },
+      {
+        "path": "visualization\\plot_utils.py",
+        "lines": 324
+      },
+      {
+        "path": "src\\core\\simulator.py",
+        "lines": 273
+      },
+      {
+        "path": "src\\ai\\env.py",
+        "lines": 249
+      },
+      {
+        "path": "test_week2_features.py",
+        "lines": 216
+      },
+      {
+        "path": "simulation\\topology.py",
+        "lines": 208
+      },
+      {
+        "path": "src\\ai\\env_wrapper.py",
+        "lines": 198
+      },
+      {
+        "path": "simulation\\node.py",
+        "lines": 183
+      },
+      {
+        "path": "src\\utils\\logger.py",
+        "lines": 173
+      }
+    ]
+  },
+  "weekly_progress": {
+    "week1": {
+      "date_range": "5-8 Aralık 2024",
+      "commits": [],
+      "tasks_completed": [],
+      "key_features": [
+        "Node sınıfı: send/receive/fail/repair metodları",
+        "Topology Generator: Random Geometric Graph (RGG) algoritması",
+        "Network Manager: Dummy routing (%70 random, %30 nearest)",
+        "Visualization: NetworkX + Matplotlib ile görselleştirme",
+        "Session-based otomatik dosya kaydetme sistemi"
+      ]
+    },
+    "week2": {
+      "date_range": "12-14 Aralık 2024",
+      "commits": [],
+      "tasks_completed": [],
+      "key_features": [
+        "RL Agent: DQN tabanlı akıllı routing",
+        "Environment: OpenAI Gym benzeri simülasyon ortamı",
+        "Reward System: Çok-objektifli ödül fonksiyonu",
+        "Memory Replay: Deneyim tabanlı öğrenme",
+        "State Encoder: Ağ durumu vektörleştirme",
+        "Training Loop: Episodik öğrenme sistemi"
+      ]
+    }
+  }
+}
