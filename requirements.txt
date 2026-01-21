@@ -1,0 +1,19 @@
+# LifeNode Dependencies
+# AI-Driven Dynamic Routing Simulation for Ad-Hoc Networks
+
+# Core dependencies
+networkx>=3.0
+numpy>=1.24
+matplotlib>=3.7
+rich>=13.0
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
+
+# Optional: Performance
+# numba>=0.57  # JIT compilation for speed
+
+# Optional: Advanced RL (future use)
+# torch>=2.0
+# stable-baselines3>=2.0

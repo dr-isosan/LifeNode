@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeNode Technical Benchmark</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        h1 { color: #1a237e; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; }
+        h3 { color: #333; margin-top: 0; }
+        .analysis-box { background: #e3f2fd; border-l: 4px solid #2196f3; padding: 15px; border-radius: 4px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; }
+        .tech-metric { color: #666; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 LifeNode Teknik Analiz Raporu</h1>
+        <p>Oluşturulma Tarihi: 2026-01-20 23:57</p>
+
+        <div class="analysis-box">
+            <h3>🤖 AI Öngörüleri</h3>
+            <ul><li><strong>GENEL ŞAMPİYON: AODV</strong> (3/5 Senaryo)</li><li><strong>Normal:</strong> UltimateRL kazandı (PDR: %37.3, Latency: 11.2ms). Düşük gecikme ile yüksek başarı.</li><li><strong>Çok Ağır:</strong> UltimateRL kazandı (PDR: %34.2, Latency: 13.2ms). Düşük gecikme ile yüksek başarı.</li></ul>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📦 Başarım Oranı (PDR %)</h3>
+                <canvas id="pdrChart"></canvas>
+            </div>
+            <div class="card">
+                <h3>⏱️ Ortalama Gecikme (Latency ms)</h3>
+                <canvas id="latencyChart"></canvas>
+            </div>
+        </div>
+
+        <h3>📋 Detaylı Teknik Metrikler</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Senaryo</th>
+                    <th>UltimateRL</th><th>Dijkstra</th><th>AODV</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Normal</strong></td>
+                <td>
+                    <strong>37.3%</strong><br>
+                    <span class="tech-metric">11.2ms | 3.6 hop</span>
+                </td>
+                <td>
+                    <strong>35.8%</strong><br>
+                    <span class="tech-metric">11.2ms | 2.8 hop</span>
+                </td>
+                <td>
+                    <strong>31.2%</strong><br>
+                    <span class="tech-metric">18.0ms | 1.7 hop</span>
+                </td></tr><tr><td><strong>Hafif</strong></td>
+                <td>
+                    <strong>29.3%</strong><br>
+                    <span class="tech-metric">11.8ms | 3.0 hop</span>
+                </td>
+                <td>
+                    <strong>31.5%</strong><br>
+                    <span class="tech-metric">11.5ms | 2.4 hop</span>
+                </td>
+                <td>
+                    <strong>32.5%</strong><br>
+                    <span class="tech-metric">17.9ms | 1.8 hop</span>
+                </td></tr><tr><td><strong>Orta</strong></td>
+                <td>
+                    <strong>29.1%</strong><br>
+                    <span class="tech-metric">11.6ms | 3.0 hop</span>
+                </td>
+                <td>
+                    <strong>29.8%</strong><br>
+                    <span class="tech-metric">11.9ms | 2.4 hop</span>
+                </td>
+                <td>
+                    <strong>30.7%</strong><br>
+                    <span class="tech-metric">17.5ms | 1.7 hop</span>
+                </td></tr><tr><td><strong>Ağır</strong></td>
+                <td>
+                    <strong>31.5%</strong><br>
+                    <span class="tech-metric">12.2ms | 2.9 hop</span>
+                </td>
+                <td>
+                    <strong>29.4%</strong><br>
+                    <span class="tech-metric">11.7ms | 2.4 hop</span>
+                </td>
+                <td>
+                    <strong>32.8%</strong><br>
+                    <span class="tech-metric">18.5ms | 1.7 hop</span>
+                </td></tr><tr><td><strong>Çok Ağır</strong></td>
+                <td>
+                    <strong>34.2%</strong><br>
+                    <span class="tech-metric">13.2ms | 3.0 hop</span>
+                </td>
+                <td>
+                    <strong>31.7%</strong><br>
+                    <span class="tech-metric">13.2ms | 2.5 hop</span>
+                </td>
+                <td>
+                    <strong>30.5%</strong><br>
+                    <span class="tech-metric">18.1ms | 1.7 hop</span>
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // PDR Chart
+        new Chart(document.getElementById('pdrChart'), {
+            type: 'bar',
+            data: { labels: ["Normal", "Hafif", "Orta", "A\u011f\u0131r", "\u00c7ok A\u011f\u0131r"], datasets: [{"label": "UltimateRL", "data": [37.3354588501629, 29.260422508258564, 29.070351612177646, 31.54971513906718, 34.21365011779654], "backgroundColor": "#4CAF50", "borderColor": "#4CAF50", "borderWidth": 1}, {"label": "Dijkstra", "data": [35.812944488483524, 31.52814399372619, 29.81427166732587, 29.405931747368474, 31.67909736561508], "backgroundColor": "#2196F3", "borderColor": "#2196F3", "borderWidth": 1}, {"label": "AODV", "data": [31.218765811449167, 32.53399055443769, 30.693156469385336, 32.755201251264644, 30.5337123554351], "backgroundColor": "#FF9800", "borderColor": "#FF9800", "borderWidth": 1}] },
+            options: { scales: { y: { beginAtZero: true, max: 50, title: {display: true, text: 'PDR (%)'} } } }
+        });
+
+        // Latency Chart
+        new Chart(document.getElementById('latencyChart'), {
+            type: 'line',
+            data: { labels: ["Normal", "Hafif", "Orta", "A\u011f\u0131r", "\u00c7ok A\u011f\u0131r"], datasets: [{"label": "UltimateRL", "data": [11.214404639119893, 11.762188300774783, 11.590339226944707, 12.241656621229719, 13.18486866773649], "borderColor": "#4CAF50", "fill": false, "tension": 0.4}, {"label": "Dijkstra", "data": [11.190008950166552, 11.482981997644327, 11.934427947420707, 11.711420666971732, 13.155712823121831], "borderColor": "#2196F3", "fill": false, "tension": 0.4}, {"label": "AODV", "data": [18.03919618028161, 17.859456891533448, 17.495303219682597, 18.471363559683134, 18.064518067339257], "borderColor": "#FF9800", "fill": false, "tension": 0.4}] },
+            options: { scales: { y: { beginAtZero: true, title: {display: true, text: 'Latency (ms)'} } } }
+        });
+    </script>
+</body>
+</html>
+        
