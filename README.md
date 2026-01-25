@@ -260,11 +260,3 @@ python -m pytest tests/ -v
 # Coverage raporu
 python -m pytest tests/ --cov=lifenode
 ```
-
-## 📝 Lisans
-
-MIT License
-
-## 🤝 Katkı
-
-Pull request'ler kabul edilir. Büyük değişiklikler için önce issue açınız.

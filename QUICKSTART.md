@@ -242,7 +242,3 @@ mkdir -p models results
 3. [1] RL Eğitimi → Farklı parametre dene
 4. [2] Karşılaştırma → En iyi modeli bul
 ```
-
----
-
-**Keyifli deneyler! 🚀**
