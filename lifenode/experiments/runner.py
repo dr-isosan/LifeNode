@@ -27,7 +27,7 @@ class ExperimentConfig:
     """Deney yapılandırması"""
 
     name: str = "default"
-    num_nodes: int = 30
+    num_nodes: int = 64
     num_steps: int = 500
     seed: Optional[int] = 42
 
@@ -40,7 +40,7 @@ class ExperimentConfig:
     failure_start_step: int = 100
 
     # RL eğitim
-    rl_training_episodes: int = 10
+    rl_training_episodes: int = 1500
 
 
 class ExperimentRunner:
@@ -53,7 +53,7 @@ class ExperimentRunner:
     def __init__(
         self,
         config: Optional[SimulationConfig] = None,
-        experiment_config: Optional[ExperimentConfig] = None
+        experiment_config: Optional[ExperimentConfig] = None,
     ):
         """
         Args:
@@ -76,7 +76,7 @@ class ExperimentRunner:
         name: Optional[str] = None,
         num_steps: Optional[int] = None,
         show_progress: bool = True,
-        callback: Optional[Callable] = None
+        callback: Optional[Callable] = None,
     ) -> ExperimentMetrics:
         """
         Tek bir deney çalıştır
@@ -102,10 +102,7 @@ class ExperimentRunner:
             print(f"{'='*60}")
 
         # World oluştur
-        world = World(
-            config=self.sim_config,
-            seed=self.exp_config.seed
-        )
+        world = World(config=self.sim_config, seed=self.exp_config.seed)
         world.initialize_random_nodes(count=self.exp_config.num_nodes)
         world.set_router(router)
 
@@ -117,7 +114,10 @@ class ExperimentRunner:
         # Simülasyon döngüsü
         for step in range(num_steps):
             # Afet simülasyonu
-            if self.exp_config.enable_failures and step >= self.exp_config.failure_start_step:
+            if (
+                self.exp_config.enable_failures
+                and step >= self.exp_config.failure_start_step
+            ):
                 self._apply_random_failures(world, step, collector)
 
             # Adım çalıştır
@@ -164,10 +164,7 @@ class ExperimentRunner:
         return collector.get_metrics()
 
     def _apply_random_failures(
-        self,
-        world: World,
-        step: int,
-        collector: MetricCollector
+        self, world: World, step: int, collector: MetricCollector
     ):
         """Rastgele düğüm arızaları uygula"""
         for node in list(world.nodes.values()):
@@ -177,9 +174,7 @@ class ExperimentRunner:
                 world.update_all_links()
 
     def run_comparison(
-        self,
-        routers: Optional[List[Router]] = None,
-        show_progress: bool = True
+        self, routers: Optional[List[Router]] = None, show_progress: bool = True
     ) -> Dict[str, ExperimentMetrics]:
         """
         Birden fazla router karşılaştır
@@ -204,15 +199,12 @@ class ExperimentRunner:
             # Her router için aynı seed kullan
             random.seed(self.exp_config.seed)
 
-            self.run_single_experiment(
-                router=router,
-                show_progress=show_progress
-            )
+            self.run_single_experiment(router=router, show_progress=show_progress)
 
         if show_progress:
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             print("KARŞILAŞTIRMA SONUÇLARI")
-            print("="*60)
+            print("=" * 60)
             print(self.analyzer.generate_report())
 
         return self.results
@@ -221,7 +213,7 @@ class ExperimentRunner:
         self,
         episodes: Optional[int] = None,
         steps_per_episode: int = 200,
-        show_progress: bool = True
+        show_progress: bool = True,
     ) -> RLRouter:
         """
         RL ajanını eğit
@@ -246,12 +238,12 @@ class ExperimentRunner:
         rl_router = RLRouter(
             ql_config=QLearningConfig(
                 learning_rate=0.1,
-                discount_factor=0.95,
+                discount_factor=0.97,
                 epsilon_start=1.0,
-                epsilon_end=0.01,
-                epsilon_decay=0.99,
+                epsilon_end=0.05,
+                epsilon_decay=0.995,
             ),
-            training_mode=True
+            training_mode=True,
         )
 
         training_rewards = []
@@ -261,10 +253,7 @@ class ExperimentRunner:
             # Her episode için yeni world
             random.seed(self.exp_config.seed + episode)
 
-            world = World(
-                config=self.sim_config,
-                seed=self.exp_config.seed + episode
-            )
+            world = World(config=self.sim_config, seed=self.exp_config.seed + episode)
             world.initialize_random_nodes(count=self.exp_config.num_nodes)
             world.set_router(rl_router)
 
@@ -275,8 +264,7 @@ class ExperimentRunner:
 
                 # Reward topla
                 episode_reward += (
-                    result.packets_delivered * 10 -
-                    result.packets_dropped * 10
+                    result.packets_delivered * 10 - result.packets_dropped * 10
                 )
 
             # Episode sonu
@@ -284,7 +272,7 @@ class ExperimentRunner:
 
             stats = world.get_stats()
             training_rewards.append(episode_reward)
-            training_pdrs.append(stats['packet_delivery_ratio'])
+            training_pdrs.append(stats["packet_delivery_ratio"])
 
             if show_progress and (episode + 1) % 5 == 0:
                 avg_reward = sum(training_rewards[-5:]) / 5
@@ -311,10 +299,7 @@ class ExperimentRunner:
         return rl_router
 
     def run_full_comparison(
-        self,
-        include_rl: bool = True,
-        rl_episodes: int = 10,
-        show_progress: bool = True
+        self, include_rl: bool = True, rl_episodes: int = 10, show_progress: bool = True
     ) -> Dict[str, ExperimentMetrics]:
         """
         Tam karşılaştırma çalıştır (baseline + RL)
@@ -334,18 +319,13 @@ class ExperimentRunner:
         if include_rl:
             # RL ajanını eğit
             rl_router = self.train_rl_agent(
-                episodes=rl_episodes,
-                show_progress=show_progress
+                episodes=rl_episodes, show_progress=show_progress
             )
             routers.append(rl_router)
 
         return self.run_comparison(routers, show_progress)
 
-    def visualize_results(
-        self,
-        save_dir: Optional[str] = None,
-        show: bool = True
-    ):
+    def visualize_results(self, save_dir: Optional[str] = None, show: bool = True):
         """
         Sonuçları görselleştir
 
@@ -360,19 +340,18 @@ class ExperimentRunner:
         # PDR karşılaştırması
         self.visualizer.plot_pdr_comparison(
             self.results,
-            save_path=f"{save_dir}/pdr_comparison.png" if save_dir else None
+            save_path=f"{save_dir}/pdr_comparison.png" if save_dir else None,
         )
 
         # Latency dağılımı
         self.visualizer.plot_latency_distribution(
             self.results,
-            save_path=f"{save_dir}/latency_distribution.png" if save_dir else None
+            save_path=f"{save_dir}/latency_distribution.png" if save_dir else None,
         )
 
         # Özet grafik
         self.visualizer.plot_comparison_summary(
-            self.results,
-            save_path=f"{save_dir}/summary.png" if save_dir else None
+            self.results, save_path=f"{save_dir}/summary.png" if save_dir else None
         )
 
         if show:

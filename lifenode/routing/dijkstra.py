@@ -30,15 +30,18 @@ class DijkstraRouter(Router):
     def __init__(
         self,
         use_quality_weights: bool = True,
-        cache_enabled: bool = True
+        cache_enabled: bool = True,
+        max_hops: Optional[int] = None,
     ):
         """
         Args:
             use_quality_weights: Ağırlık olarak kalite kullan
             cache_enabled: Cache kullan (topoloji değişene kadar)
+            max_hops: Maksimum hop sayısı (None = sınırsız)
         """
         self.use_quality_weights = use_quality_weights
         self.cache_enabled = cache_enabled
+        self.max_hops = max_hops
 
         # Yol cache'i
         self._path_cache: Dict[Tuple[str, str], List[str]] = {}
@@ -55,10 +58,7 @@ class DijkstraRouter(Router):
         return "Dijkstra-Hop"
 
     def get_next_hop(
-        self,
-        current_node: str,
-        destination: str,
-        world: 'World'
+        self, current_node: str, destination: str, world: "World"
     ) -> Optional[str]:
         """
         Dijkstra algoritması ile sonraki hop'u bul
@@ -98,10 +98,7 @@ class DijkstraRouter(Router):
             if self.use_quality_weights:
                 # Ağırlık = 1/kalite (düşük kalite = yüksek maliyet)
                 path = nx.dijkstra_path(
-                    graph,
-                    current_node,
-                    destination,
-                    weight='weight'
+                    graph, current_node, destination, weight="weight"
                 )
             else:
                 # Sadece hop sayısı
@@ -112,6 +109,10 @@ class DijkstraRouter(Router):
             # Cache'e ekle
             if self.cache_enabled:
                 self._path_cache[cache_key] = path
+
+            if self.max_hops is not None:
+                if (len(path) - 1) > self.max_hops:
+                    return None
 
             if len(path) > 1:
                 return path[1]
@@ -128,11 +129,11 @@ class DijkstraRouter(Router):
         """Topoloji değişikliğinde cache'i geçersiz kıl"""
         self._invalidate_cache()
 
-    def on_packet_forwarded(self, packet: 'Packet', next_hop: str):
+    def on_packet_forwarded(self, packet: "Packet", next_hop: str):
         """Paket iletildi - cache hala geçerli"""
         pass
 
-    def on_packet_dropped(self, packet: 'Packet'):
+    def on_packet_dropped(self, packet: "Packet"):
         """Paket düşürüldü - muhtemelen topoloji değişti"""
         # Güvenli tarafta kal, cache'i geçersiz kıl
         self._invalidate_cache()
@@ -156,13 +157,15 @@ class DijkstraRouter(Router):
     def get_stats(self) -> dict:
         """İstatistikleri döndür"""
         stats = super().get_stats()
-        stats.update({
-            'cache_hits': self._cache_hits,
-            'cache_misses': self._cache_misses,
-            'paths_computed': self._paths_computed,
-            'cache_size': len(self._path_cache),
-            'use_quality_weights': self.use_quality_weights,
-        })
+        stats.update(
+            {
+                "cache_hits": self._cache_hits,
+                "cache_misses": self._cache_misses,
+                "paths_computed": self._paths_computed,
+                "cache_size": len(self._path_cache),
+                "use_quality_weights": self.use_quality_weights,
+            }
+        )
         return stats
 
     # =========================================================================
@@ -170,10 +173,7 @@ class DijkstraRouter(Router):
     # =========================================================================
 
     def get_full_path(
-        self,
-        source: str,
-        destination: str,
-        world: 'World'
+        self, source: str, destination: str, world: "World"
     ) -> Optional[List[str]]:
         """
         Kaynak'tan hedefe tam yolu döndür
@@ -193,17 +193,14 @@ class DijkstraRouter(Router):
 
         try:
             if self.use_quality_weights:
-                return nx.dijkstra_path(graph, source, destination, weight='weight')
+                return nx.dijkstra_path(graph, source, destination, weight="weight")
             else:
                 return nx.shortest_path(graph, source, destination)
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return None
 
     def get_path_cost(
-        self,
-        source: str,
-        destination: str,
-        world: 'World'
+        self, source: str, destination: str, world: "World"
     ) -> Optional[float]:
         """
         Yol maliyetini hesapla
@@ -223,13 +220,15 @@ class DijkstraRouter(Router):
 
         try:
             if self.use_quality_weights:
-                return nx.dijkstra_path_length(graph, source, destination, weight='weight')
+                return nx.dijkstra_path_length(
+                    graph, source, destination, weight="weight"
+                )
             else:
                 return nx.shortest_path_length(graph, source, destination)
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return None
 
-    def precompute_all_paths(self, world: 'World'):
+    def precompute_all_paths(self, world: "World"):
         """
         Tüm çiftler için yolları önceden hesapla
 
@@ -251,7 +250,7 @@ class DijkstraRouter(Router):
 
                 try:
                     if self.use_quality_weights:
-                        path = nx.dijkstra_path(graph, source, dest, weight='weight')
+                        path = nx.dijkstra_path(graph, source, dest, weight="weight")
                     else:
                         path = nx.shortest_path(graph, source, dest)
 

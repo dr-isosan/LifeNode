@@ -10,12 +10,10 @@ Komşular hedefe uzaklıklarına göre sıralanıyor.
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, TYPE_CHECKING
-import numpy as np
 import math
 
 if TYPE_CHECKING:
     from ..environment.world import World
-    from ..environment.node import Node
 
 
 @dataclass
@@ -27,13 +25,13 @@ class NeighborState:
     """
 
     neighbor_id: str
-    link_quality: float          # 0-1 arası bağlantı kalitesi
-    neighbor_energy: float       # 0-100 arası enerji
-    neighbor_queue_length: int   # Kuyruk uzunluğu
-    distance_to_current: float   # Mevcut düğüme mesafe
-    distance_to_dest: float      # HEDEFE MESAFE (normalize edilmiş)
-    is_closer_to_dest: bool      # Hedefe daha mı yakın?
-    recent_success_rate: float   # Bu komşu üzerinden son başarı oranı
+    link_quality: float  # 0-1 arası bağlantı kalitesi
+    neighbor_energy: float  # 0-100 arası enerji
+    neighbor_queue_length: int  # Kuyruk uzunluğu
+    distance_to_current: float  # Mevcut düğüme mesafe
+    distance_to_dest: float  # HEDEFE MESAFE (normalize edilmiş)
+    is_closer_to_dest: bool  # Hedefe daha mı yakın?
+    recent_success_rate: float  # Bu komşu üzerinden son başarı oranı
 
 
 @dataclass
@@ -87,7 +85,7 @@ class StateEncoder:
         energy_bins: int = 5,
         queue_bins: int = 3,
         quality_bins: int = 5,
-        distance_bins: int = 5
+        distance_bins: int = 5,
     ):
         self.max_neighbors = max_neighbors
         self.energy_bins = energy_bins
@@ -102,27 +100,48 @@ class StateEncoder:
         ÖNEMLİ: Hedefe mesafe bilgisi eklendi!
         """
         # Mevcut düğüm
-        energy_bin = self._bin_value(state.current_node_energy / 100.0, self.energy_bins)
+        energy_bin = self._bin_value(
+            state.current_node_energy / 100.0, self.energy_bins
+        )
         queue_bin = self._bin_value(state.current_queue_length / 20.0, self.queue_bins)
 
         # Komşu özellikleri
         if state.neighbor_states:
             # En iyi komşunun kalitesi
-            best_neighbor = state.neighbor_states[0]  # Zaten hedefe en yakına göre sıralı
-            best_quality = self._bin_value(best_neighbor.link_quality, self.quality_bins)
-            best_energy = self._bin_value(best_neighbor.neighbor_energy / 100.0, self.energy_bins)
+            best_neighbor = state.neighbor_states[
+                0
+            ]  # Zaten hedefe en yakına göre sıralı
+            best_quality = self._bin_value(
+                best_neighbor.link_quality, self.quality_bins
+            )
+            best_energy = self._bin_value(
+                best_neighbor.neighbor_energy / 100.0, self.energy_bins
+            )
+
+            # Hedefe yaklaşma oranı (best komşu / mevcut mesafe)
+            denom = (
+                state.current_distance_to_dest
+                if state.current_distance_to_dest > 0
+                else 1.0
+            )
+            ratio = best_neighbor.distance_to_dest / denom
+            ratio = max(0.0, min(1.0, ratio))
+            distance_ratio_bin = self._bin_value(ratio, self.distance_bins)
 
             # Hedefe daha yakın komşu var mı?
             has_closer = 1 if state.num_closer_neighbors > 0 else 0
 
             # Ortalama komşu kalitesi
-            avg_quality = sum(n.link_quality for n in state.neighbor_states) / len(state.neighbor_states)
+            avg_quality = sum(n.link_quality for n in state.neighbor_states) / len(
+                state.neighbor_states
+            )
             avg_quality_bin = self._bin_value(avg_quality, self.quality_bins)
         else:
             best_quality = 0
             best_energy = 0
             has_closer = 0
             avg_quality_bin = 0
+            distance_ratio_bin = 0
 
         num_neighbors = min(len(state.neighbor_states), 5)
 
@@ -131,8 +150,9 @@ class StateEncoder:
             queue_bin,
             best_quality,
             best_energy,
-            has_closer,       # KRİTİK: hedefe yakınlık bilgisi
+            has_closer,  # KRİTİK: hedefe yakınlık bilgisi
             avg_quality_bin,
+            distance_ratio_bin,
             num_neighbors,
         )
 
@@ -151,14 +171,12 @@ class StateBuilder:
     Komşular hedefe uzaklıklarına göre sıralanıyor.
     """
 
-    def __init__(self, world: 'World'):
+    def __init__(self, world: "World"):
         self.world = world
         self._neighbor_success: dict = {}  # (node_id, neighbor_id) -> [success, total]
 
     def build_state(
-        self,
-        current_node_id: str,
-        destination_id: str
+        self, current_node_id: str, destination_id: str
     ) -> Optional[RoutingState]:
         """
         State oluştur
@@ -175,8 +193,7 @@ class StateBuilder:
 
         # Mevcut düğümün hedefe mesafesi
         current_to_dest = self._calculate_distance(
-            current_node.position,
-            destination_node.position
+            current_node.position, destination_node.position
         )
 
         # Komşuları al ve hedefe mesafelerini hesapla
@@ -194,8 +211,7 @@ class StateBuilder:
 
             # Komşunun hedefe mesafesi
             neighbor_to_dest = self._calculate_distance(
-                neighbor.position,
-                destination_node.position
+                neighbor.position, destination_node.position
             )
 
             # Komşu hedefe daha mı yakın?
@@ -251,7 +267,9 @@ class StateBuilder:
             recent_success_rate=overall_success,
         )
 
-    def _calculate_distance(self, pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
+    def _calculate_distance(
+        self, pos1: Tuple[float, float], pos2: Tuple[float, float]
+    ) -> float:
         """İki nokta arası mesafe"""
         dx = pos1[0] - pos2[0]
         dy = pos1[1] - pos2[1]

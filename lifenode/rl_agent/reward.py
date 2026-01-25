@@ -17,11 +17,12 @@ if TYPE_CHECKING:
 
 class RoutingEvent(Enum):
     """Routing olayları"""
-    FORWARDED = auto()    # Paket başarıyla iletildi
-    DELIVERED = auto()    # Paket hedefe ulaştı
-    DROPPED = auto()      # Paket düşürüldü
-    NO_ROUTE = auto()     # Rota bulunamadı
-    QUEUE_FULL = auto()   # Kuyruk dolu
+
+    FORWARDED = auto()  # Paket başarıyla iletildi
+    DELIVERED = auto()  # Paket hedefe ulaştı
+    DROPPED = auto()  # Paket düşürüldü
+    NO_ROUTE = auto()  # Rota bulunamadı
+    QUEUE_FULL = auto()  # Kuyruk dolu
 
 
 @dataclass
@@ -29,16 +30,16 @@ class RewardConfig:
     """Ödül fonksiyonu yapılandırması"""
 
     # Ana ödüller/cezalar
-    delivery_reward: float = 10.0      # Başarılı teslimat
-    drop_penalty: float = -10.0        # Paket kaybı
-    no_route_penalty: float = -5.0     # Rota bulunamadı
+    delivery_reward: float = 10.0  # Başarılı teslimat
+    drop_penalty: float = -10.0  # Paket kaybı
+    no_route_penalty: float = -5.0  # Rota bulunamadı
 
     # Hop başına ceza (uzun rotaları önle)
     hop_penalty: float = -0.1
 
     # Gecikme bonusu/cezası
     latency_weight: float = 1.0
-    target_latency_ms: float = 50.0    # Hedef gecikme
+    target_latency_ms: float = 50.0  # Hedef gecikme
 
     # Enerji bonusu (yüksek enerjili düğümleri tercih et)
     energy_weight: float = 0.5
@@ -48,6 +49,10 @@ class RewardConfig:
 
     # Link kalitesi bonusu
     quality_weight: float = 0.3
+
+    # Hedefe yaklaşma ödülü (ileri yönlendirmede)
+    # Pozitif: hedefe yaklaşıldı, Negatif: uzaklaşıldı
+    progress_weight: float = 1.0
 
     # Döngü cezası (aynı düğümü tekrar ziyaret etme)
     loop_penalty: float = -2.0
@@ -74,10 +79,11 @@ class RewardCalculator:
     def calculate(
         self,
         event: RoutingEvent,
-        packet: Optional['Packet'] = None,
-        chosen_neighbor: Optional['Node'] = None,
-        link: Optional['Link'] = None,
-        is_loop: bool = False
+        packet: Optional["Packet"] = None,
+        chosen_neighbor: Optional["Node"] = None,
+        link: Optional["Link"] = None,
+        is_loop: bool = False,
+        progress_ratio: Optional[float] = None,
     ) -> float:
         """
         Ödül hesapla
@@ -117,6 +123,11 @@ class RewardCalculator:
             if link:
                 reward += self._quality_bonus(link)
 
+            # Hedefe yaklaşma ödülü/cezası
+            if progress_ratio is not None:
+                progress_ratio = max(-1.0, min(1.0, progress_ratio))
+                reward += self.config.progress_weight * progress_ratio
+
         # Döngü cezası
         if is_loop:
             reward += self.config.loop_penalty
@@ -127,7 +138,7 @@ class RewardCalculator:
 
         return reward
 
-    def _latency_bonus(self, packet: Optional['Packet']) -> float:
+    def _latency_bonus(self, packet: Optional["Packet"]) -> float:
         """
         Gecikme bonusu hesapla
 
@@ -147,7 +158,7 @@ class RewardCalculator:
             excess = (latency - target) / target
             return -self.config.latency_weight * min(excess, 2.0)
 
-    def _energy_bonus(self, neighbor: 'Node') -> float:
+    def _energy_bonus(self, neighbor: "Node") -> float:
         """
         Enerji bonusu hesapla
 
@@ -156,7 +167,7 @@ class RewardCalculator:
         energy_ratio = neighbor.energy / 100.0
         return self.config.energy_weight * (energy_ratio - 0.5)  # -0.25 ile +0.25 arası
 
-    def _queue_penalty(self, neighbor: 'Node') -> float:
+    def _queue_penalty(self, neighbor: "Node") -> float:
         """
         Kuyruk cezası hesapla
 
@@ -165,7 +176,7 @@ class RewardCalculator:
         queue_fullness = neighbor.queue_fullness
         return -self.config.queue_penalty_weight * queue_fullness
 
-    def _quality_bonus(self, link: 'Link') -> float:
+    def _quality_bonus(self, link: "Link") -> float:
         """
         Link kalitesi bonusu
 
@@ -192,7 +203,7 @@ class RewardCalculator:
     def get_stats(self) -> dict:
         """İstatistikleri döndür"""
         return {
-            'total_reward': self._total_reward,
-            'reward_count': self._reward_count,
-            'average_reward': self.average_reward,
+            "total_reward": self._total_reward,
+            "reward_count": self._reward_count,
+            "average_reward": self.average_reward,
         }

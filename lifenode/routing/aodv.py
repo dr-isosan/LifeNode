@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 @dataclass
 class RouteEntry:
     """AODV routing table entry"""
+
     destination: str
     next_hop: str
     hop_count: int
@@ -47,15 +48,18 @@ class AODVRouter(Router):
     def __init__(
         self,
         route_lifetime: float = 10.0,  # saniye
-        rreq_retries: int = 3
+        rreq_retries: int = 3,
+        max_hops: Optional[int] = None,
     ):
         """
         Args:
             route_lifetime: Rota geçerlilik süresi (saniye)
             rreq_retries: RREQ tekrar deneme sayısı
+            max_hops: Maksimum hop sayısı (None = sınırsız)
         """
         self.route_lifetime = route_lifetime
         self.rreq_retries = rreq_retries
+        self.max_hops = max_hops
 
         # Routing table: destination -> RouteEntry
         self.routing_table: Dict[str, RouteEntry] = {}
@@ -77,10 +81,7 @@ class AODVRouter(Router):
         return "AODV"
 
     def get_next_hop(
-        self,
-        current_node: str,
-        destination: str,
-        world: 'World'
+        self, current_node: str, destination: str, world: "World"
     ) -> Optional[str]:
         """
         AODV ile sonraki hop'u bul
@@ -118,10 +119,7 @@ class AODVRouter(Router):
             return None
 
     def _discover_route(
-        self,
-        source: str,
-        destination: str,
-        world: 'World'
+        self, source: str, destination: str, world: "World"
     ) -> Optional[RouteEntry]:
         """
         BFS ile rota keşfi (RREQ/RREP simülasyonu)
@@ -142,6 +140,10 @@ class AODVRouter(Router):
                 if len(path) < 2:
                     return None
 
+                if self.max_hops is not None:
+                    if (len(path) - 1) > self.max_hops:
+                        return None
+
                 self.sequence_number += 1
                 return RouteEntry(
                     destination=destination,
@@ -153,6 +155,9 @@ class AODVRouter(Router):
 
             # Komşuları keşfet
             neighbors = world.get_neighbors(current)
+            if self.max_hops is not None:
+                if (len(path) - 1) >= self.max_hops:
+                    continue
             for neighbor in neighbors:
                 if neighbor not in visited:
                     visited.add(neighbor)
@@ -160,14 +165,14 @@ class AODVRouter(Router):
 
         return None
 
-    def on_packet_forwarded(self, packet: 'Packet', next_hop: str):
+    def on_packet_forwarded(self, packet: "Packet", next_hop: str):
         """Paket iletildi - rota kullanılıyor"""
         # Rota lifetime'ını yenile
         dest = packet.destination
         if dest in self.routing_table:
             self.routing_table[dest].created_at = time.time()
 
-    def on_packet_dropped(self, packet: 'Packet'):
+    def on_packet_dropped(self, packet: "Packet"):
         """Paket düşürüldü - rota geçersiz olabilir"""
         dest = packet.destination
         if dest in self.routing_table:
@@ -177,7 +182,7 @@ class AODVRouter(Router):
         """Topoloji değişikliği - etkilenen rotaları geçersiz kıl"""
         if event.event_type in (
             TopologyEventType.NODE_FAILED,
-            TopologyEventType.LINK_DOWN
+            TopologyEventType.LINK_DOWN,
         ):
             affected_node = event.node_id
 
@@ -198,15 +203,19 @@ class AODVRouter(Router):
 
     def get_stats(self) -> dict:
         """İstatistikleri döndür"""
-        total_lookups = self._route_discoveries + self._route_failures + self._cache_hits
+        total_lookups = (
+            self._route_discoveries + self._route_failures + self._cache_hits
+        )
 
         return {
-            'name': self.get_name(),
-            'trainable': False,
-            'routing_table_size': len(self.routing_table),
-            'route_discoveries': self._route_discoveries,
-            'route_failures': self._route_failures,
-            'cache_hits': self._cache_hits,
-            'cache_hit_rate': self._cache_hits / total_lookups if total_lookups > 0 else 0.0,
-            'valid_routes': sum(1 for r in self.routing_table.values() if r.is_valid),
+            "name": self.get_name(),
+            "trainable": False,
+            "routing_table_size": len(self.routing_table),
+            "route_discoveries": self._route_discoveries,
+            "route_failures": self._route_failures,
+            "cache_hits": self._cache_hits,
+            "cache_hit_rate": (
+                self._cache_hits / total_lookups if total_lookups > 0 else 0.0
+            ),
+            "valid_routes": sum(1 for r in self.routing_table.values() if r.is_valid),
         }

@@ -81,16 +81,16 @@ console = Console()
 class CLIConfig:
     """CLI konfigürasyonu"""
 
-    num_nodes: int = 40
+    num_nodes: int = 64
     num_steps: int = 500
     seed: int = 42
-    rl_episodes: int = 30
+    rl_episodes: int = 1500
     rl_steps_per_episode: int = 300
     learning_rate: float = 0.1
-    discount_factor: float = 0.95
-    epsilon: float = 0.3
+    discount_factor: float = 0.97
+    epsilon: float = 1.0
     output_dir: str = "results"
-    model_dir: str = "models"
+    model_dir: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 
 
 config = CLIConfig()
@@ -193,11 +193,29 @@ def run_rl_training() -> Optional[RLRouter]:
         learning_rate=config.learning_rate,
         discount_factor=config.discount_factor,
         epsilon_start=config.epsilon,
-        epsilon_end=0.05,   
+        epsilon_end=0.05,
         epsilon_decay=0.995,
     )
 
     rl_router = RLRouter(training_mode=True, ql_config=rl_config)
+
+    def create_training_scenario(episode_idx: int):
+        """Eğitimde senaryo çeşitliliği için basit döngü"""
+        cycle = episode_idx % 3
+        if cycle == 1:
+            return GradualFailureScenario(
+                start_step=100,
+                failure_rate=0.03,
+                recovery_rate=0.01,
+            )
+        if cycle == 2:
+            return EarthquakeScenario(
+                epicenter=(250, 250),
+                radius=200,
+                intensity=0.6,
+                trigger_step=150,
+            )
+        return None
 
     best_pdr = 0.0
     episode_results = []
@@ -219,9 +237,15 @@ def run_rl_training() -> Optional[RLRouter]:
             world = World(config=sim_config, seed=config.seed + episode)
             world.initialize_random_nodes(count=config.num_nodes)
             world.set_router(rl_router)
+            scenario = create_training_scenario(episode)
+            if scenario:
+                scenario.reset()
             collector = MetricCollector()
 
             for step in range(config.rl_steps_per_episode):
+                if scenario:
+                    scenario.apply(world, step)
+
                 result = world.step()
 
                 for _ in range(result.packets_sent):
@@ -230,6 +254,9 @@ def run_rl_training() -> Optional[RLRouter]:
                     collector.record_result(pr)
                 for pr in result.dropped_packets:
                     collector.record_result(pr)
+
+            # Episode sonu: epsilon decay + pending state temizliği
+            rl_router.end_episode()
 
             collector.finalize()
             metrics = collector.get_metrics()
@@ -254,8 +281,11 @@ def run_rl_training() -> Optional[RLRouter]:
                 description=f"[cyan]Episode {episode+1}/{config.rl_episodes} | PDR: {pdr*100:.1f}% | Best: {best_pdr*100:.1f}%",
             )
 
+            # Bir sonraki episode için router state temizliği
+            rl_router.reset()
+
     # Eğitim modunu kapat
-    rl_router.training_mode = False
+    rl_router.set_training_mode(False)
 
     # Sonuçları göster
     console.print()
@@ -320,6 +350,9 @@ def save_model(router: RLRouter):
         "Dosya adı", default=f"rl_model_{time.strftime('%Y%m%d_%H%M%S')}.pkl"
     )
 
+    if not filename.endswith(".pkl"):
+        filename += ".pkl"
+
     filepath = os.path.join(config.model_dir, filename)
     router.save_model(filepath)
 
@@ -343,9 +376,8 @@ def comparison_menu():
 
     algorithms = {
         "1": ("Dijkstra (Quality)", True),
-        "2": ("Dijkstra (Hop)", True),
-        "3": ("AODV", True),
-        "4": ("RL Agent", True),
+        "2": ("AODV", True),
+        "3": ("RL Agent", True),
     }
 
     for key, (name, _) in algorithms.items():
@@ -396,12 +428,21 @@ def run_comparison(scenario_type: Optional[str], rl_router: Optional[RLRouter] =
 
     # Router'ları hazırla
     routers = {
-        "Dijkstra-Quality": DijkstraRouter(use_quality_weights=True),
-        "Dijkstra-Hop": DijkstraRouter(use_quality_weights=False),
-        "AODV": AODVRouter(),
+        "Dijkstra-Quality": DijkstraRouter(
+            use_quality_weights=True,
+            cache_enabled=False,
+            max_hops=4,
+        ),
+        "AODV": AODVRouter(
+            route_lifetime=5.0,
+            rreq_retries=1,
+            max_hops=4,
+        ),
     }
 
     if rl_router:
+        # RL router'ı test moduna al (eğitim kapatılı)
+        rl_router.set_training_mode(False)
         routers["RL-Agent"] = rl_router
 
     # Senaryoları hazırla

@@ -37,37 +37,37 @@ from lifenode.metrics.visualizer import Visualizer
 # =============================================================================
 
 EXPERIMENT_CONFIG = {
-    'num_nodes': 40,
-    'num_steps': 500,
-    'seed': 42,
-    'rl_training_episodes': 30,
-    'rl_steps_per_episode': 300,
-    'num_runs': 3,  # Her senaryo için tekrar sayısı (güvenilirlik için)
+    "num_nodes": 64,
+    "num_steps": 500,
+    "seed": 42,
+    "rl_training_episodes": 1500,
+    "rl_steps_per_episode": 300,
+    "num_runs": 3,  # Her senaryo için tekrar sayısı (güvenilirlik için)
 }
 
 SCENARIOS = {
-    'normal': None,  # Afet yok
-    'gradual_failure': {
-        'type': 'gradual',
-        'start_step': 100,
-        'failure_rate': 0.03,
-        'recovery_rate': 0.01,
+    "normal": None,  # Afet yok
+    "gradual_failure": {
+        "type": "gradual",
+        "start_step": 100,
+        "failure_rate": 0.03,
+        "recovery_rate": 0.01,
     },
-    'earthquake': {
-        'type': 'earthquake',
-        'epicenter': (250, 250),  # Ortada
-        'radius': 200,
-        'intensity': 0.6,
-        'trigger_step': 150,
-        'recovery_rate': 0.03,
+    "earthquake": {
+        "type": "earthquake",
+        "epicenter": (250, 250),  # Ortada
+        "radius": 200,
+        "intensity": 0.6,
+        "trigger_step": 150,
+        "recovery_rate": 0.03,
     },
-    'severe_earthquake': {
-        'type': 'earthquake',
-        'epicenter': (250, 250),
-        'radius': 300,
-        'intensity': 0.8,
-        'trigger_step': 100,
-        'recovery_rate': 0.02,
+    "severe_earthquake": {
+        "type": "earthquake",
+        "epicenter": (250, 250),
+        "radius": 300,
+        "intensity": 0.8,
+        "trigger_step": 100,
+        "recovery_rate": 0.02,
     },
 }
 
@@ -77,19 +77,19 @@ def create_scenario(scenario_config: Optional[dict]):
     if scenario_config is None:
         return None
 
-    if scenario_config['type'] == 'gradual':
+    if scenario_config["type"] == "gradual":
         return GradualFailureScenario(
-            start_step=scenario_config['start_step'],
-            failure_rate=scenario_config['failure_rate'],
-            recovery_rate=scenario_config['recovery_rate'],
+            start_step=scenario_config["start_step"],
+            failure_rate=scenario_config["failure_rate"],
+            recovery_rate=scenario_config["recovery_rate"],
         )
-    elif scenario_config['type'] == 'earthquake':
+    elif scenario_config["type"] == "earthquake":
         return EarthquakeScenario(
-            epicenter=scenario_config['epicenter'],
-            radius=scenario_config['radius'],
-            intensity=scenario_config['intensity'],
-            trigger_step=scenario_config['trigger_step'],
-            recovery_rate=scenario_config['recovery_rate'],
+            epicenter=scenario_config["epicenter"],
+            radius=scenario_config["radius"],
+            intensity=scenario_config["intensity"],
+            trigger_step=scenario_config["trigger_step"],
+            recovery_rate=scenario_config["recovery_rate"],
         )
     return None
 
@@ -97,21 +97,25 @@ def create_scenario(scenario_config: Optional[dict]):
 def create_routers(trained_rl_router: Optional[RLRouter] = None) -> Dict:
     """Tüm router'ları oluştur"""
     routers = {
-        'Dijkstra': DijkstraRouter(use_quality_weights=True),
-        'AODV': AODVRouter(route_lifetime=15.0),
+        "Dijkstra": DijkstraRouter(
+            use_quality_weights=True,
+            cache_enabled=False,
+            max_hops=4,
+        ),
+        "AODV": AODVRouter(
+            route_lifetime=5.0,
+            rreq_retries=1,
+            max_hops=4,
+        ),
     }
 
     if trained_rl_router:
-        routers['RL-Q'] = trained_rl_router
+        routers["RL-Q"] = trained_rl_router
 
     return routers
 
 
-def train_rl_agent(
-    num_episodes: int,
-    steps_per_episode: int,
-    seed: int
-) -> RLRouter:
+def train_rl_agent(num_episodes: int, steps_per_episode: int, seed: int) -> RLRouter:
     """RL ajanını eğit"""
     print("\n" + "=" * 60)
     print("🧠 RL AGENT EĞİTİMİ")
@@ -119,25 +123,31 @@ def train_rl_agent(
     print("=" * 60)
 
     config = SimulationConfig()
-    config.world.initial_node_count = EXPERIMENT_CONFIG['num_nodes']
+    config.world.initial_node_count = EXPERIMENT_CONFIG["num_nodes"]
 
     rl_router = RLRouter(
         ql_config=QLearningConfig(
-            learning_rate=0.15,
-            discount_factor=0.95,
+            learning_rate=0.1,
+            discount_factor=0.97,
             epsilon_start=1.0,
             epsilon_end=0.05,
-            epsilon_decay=0.98,
+            epsilon_decay=0.995,
         ),
-        training_mode=True
+        training_mode=True,
     )
 
     training_history = {
-        'episodes': [],
-        'rewards': [],
-        'pdrs': [],
-        'epsilons': [],
+        "episodes": [],
+        "rewards": [],
+        "pdrs": [],
+        "epsilons": [],
     }
+
+    training_scenarios = [
+        None,
+        SCENARIOS["gradual_failure"],
+        SCENARIOS["earthquake"],
+    ]
 
     for episode in range(num_episodes):
         random.seed(seed + episode)
@@ -146,27 +156,39 @@ def train_rl_agent(
         world.initialize_random_nodes()
         world.set_router(rl_router)
 
+        scenario_config = training_scenarios[episode % len(training_scenarios)]
+        scenario = create_scenario(scenario_config)
+        if scenario:
+            scenario.reset()
+
         episode_reward = 0.0
 
         for step in range(steps_per_episode):
+            if scenario:
+                scenario.apply(world, step)
+
             result = world.step()
-            episode_reward += result.packets_delivered * 10 - result.packets_dropped * 10
+            episode_reward += (
+                result.packets_delivered * 10 - result.packets_dropped * 10
+            )
 
         rl_router.end_episode()
 
         stats = world.get_stats()
-        training_history['episodes'].append(episode)
-        training_history['rewards'].append(episode_reward)
-        training_history['pdrs'].append(stats['packet_delivery_ratio'])
-        training_history['epsilons'].append(rl_router.agent.epsilon)
+        training_history["episodes"].append(episode)
+        training_history["rewards"].append(episode_reward)
+        training_history["pdrs"].append(stats["packet_delivery_ratio"])
+        training_history["epsilons"].append(rl_router.agent.epsilon)
 
         if (episode + 1) % 5 == 0:
-            avg_reward = sum(training_history['rewards'][-5:]) / 5
-            avg_pdr = sum(training_history['pdrs'][-5:]) / 5
-            print(f"   Episode {episode+1:3d}/{num_episodes} | "
-                  f"ε: {rl_router.agent.epsilon:.3f} | "
-                  f"Reward: {avg_reward:8.1f} | "
-                  f"PDR: {avg_pdr:.2%}")
+            avg_reward = sum(training_history["rewards"][-5:]) / 5
+            avg_pdr = sum(training_history["pdrs"][-5:]) / 5
+            print(
+                f"   Episode {episode+1:3d}/{num_episodes} | "
+                f"ε: {rl_router.agent.epsilon:.3f} | "
+                f"Reward: {avg_reward:8.1f} | "
+                f"PDR: {avg_pdr:.2%}"
+            )
 
         rl_router.reset()
 
@@ -184,13 +206,13 @@ def run_single_experiment(
     scenario_name: str,
     scenario_config: Optional[dict],
     run_id: int,
-    seed: int
+    seed: int,
 ) -> Dict:
     """Tek bir deney çalıştır"""
     random.seed(seed + run_id)
 
     config = SimulationConfig()
-    config.world.initial_node_count = EXPERIMENT_CONFIG['num_nodes']
+    config.world.initial_node_count = EXPERIMENT_CONFIG["num_nodes"]
 
     world = World(config=config, seed=seed + run_id)
     world.initialize_random_nodes()
@@ -203,7 +225,7 @@ def run_single_experiment(
     collector = MetricCollector()
     start_time = time.time()
 
-    for step in range(EXPERIMENT_CONFIG['num_steps']):
+    for step in range(EXPERIMENT_CONFIG["num_steps"]):
         # Senaryo uygula
         if scenario:
             scenario.apply(world, step)
@@ -231,21 +253,21 @@ def run_single_experiment(
     scenario_stats = scenario.get_stats() if scenario else {}
 
     return {
-        'router': router_name,
-        'scenario': scenario_name,
-        'run_id': run_id,
-        'elapsed_time': elapsed,
-        'pdr': metrics.packet_delivery_ratio,
-        'avg_latency': metrics.average_latency,
-        'avg_hops': metrics.average_hops,
-        'total_sent': metrics.total_packets_sent,
-        'total_delivered': metrics.total_packets_delivered,
-        'total_dropped': metrics.total_packets_dropped,
-        'latency_std': metrics.latency_std,
-        'min_latency': metrics.min_latency,
-        'max_latency': metrics.max_latency,
-        'router_stats': router_stats,
-        'scenario_stats': scenario_stats,
+        "router": router_name,
+        "scenario": scenario_name,
+        "run_id": run_id,
+        "elapsed_time": elapsed,
+        "pdr": metrics.packet_delivery_ratio,
+        "avg_latency": metrics.average_latency,
+        "avg_hops": metrics.average_hops,
+        "total_sent": metrics.total_packets_sent,
+        "total_delivered": metrics.total_packets_delivered,
+        "total_dropped": metrics.total_packets_dropped,
+        "latency_std": metrics.latency_std,
+        "min_latency": metrics.min_latency,
+        "max_latency": metrics.max_latency,
+        "router_stats": router_stats,
+        "scenario_stats": scenario_stats,
     }
 
 
@@ -265,21 +287,23 @@ def run_all_experiments(rl_router: Optional[RLRouter] = None) -> List[Dict]:
         for router_name, router in routers.items():
             router.reset()
 
-            for run_id in range(EXPERIMENT_CONFIG['num_runs']):
+            for run_id in range(EXPERIMENT_CONFIG["num_runs"]):
                 result = run_single_experiment(
                     router_name=router_name,
                     router=router,
                     scenario_name=scenario_name,
                     scenario_config=scenario_config,
                     run_id=run_id,
-                    seed=EXPERIMENT_CONFIG['seed'],
+                    seed=EXPERIMENT_CONFIG["seed"],
                 )
                 all_results.append(result)
 
-                print(f"   {router_name:15s} Run {run_id+1} | "
-                      f"PDR: {result['pdr']:.2%} | "
-                      f"Latency: {result['avg_latency']:6.2f}ms | "
-                      f"Hops: {result['avg_hops']:.2f}")
+                print(
+                    f"   {router_name:15s} Run {run_id+1} | "
+                    f"PDR: {result['pdr']:.2%} | "
+                    f"Latency: {result['avg_latency']:6.2f}ms | "
+                    f"Hops: {result['avg_hops']:.2f}"
+                )
 
     return all_results
 
@@ -294,30 +318,34 @@ def analyze_results(results: List[Dict]) -> Dict:
 
     # Senaryolara göre grupla
     for scenario in SCENARIOS.keys():
-        scenario_results = [r for r in results if r['scenario'] == scenario]
+        scenario_results = [r for r in results if r["scenario"] == scenario]
         analysis[scenario] = {}
 
         # Router'lara göre grupla
-        routers = set(r['router'] for r in scenario_results)
+        routers = set(r["router"] for r in scenario_results)
         for router in routers:
-            router_results = [r for r in scenario_results if r['router'] == router]
+            router_results = [r for r in scenario_results if r["router"] == router]
 
             # Ortalamaları hesapla
-            avg_pdr = sum(r['pdr'] for r in router_results) / len(router_results)
-            avg_latency = sum(r['avg_latency'] for r in router_results) / len(router_results)
-            avg_hops = sum(r['avg_hops'] for r in router_results) / len(router_results)
+            avg_pdr = sum(r["pdr"] for r in router_results) / len(router_results)
+            avg_latency = sum(r["avg_latency"] for r in router_results) / len(
+                router_results
+            )
+            avg_hops = sum(r["avg_hops"] for r in router_results) / len(router_results)
 
             # Standart sapma (PDR)
-            pdr_values = [r['pdr'] for r in router_results]
+            pdr_values = [r["pdr"] for r in router_results]
             pdr_mean = avg_pdr
-            pdr_std = (sum((x - pdr_mean) ** 2 for x in pdr_values) / len(pdr_values)) ** 0.5
+            pdr_std = (
+                sum((x - pdr_mean) ** 2 for x in pdr_values) / len(pdr_values)
+            ) ** 0.5
 
             analysis[scenario][router] = {
-                'pdr_mean': avg_pdr,
-                'pdr_std': pdr_std,
-                'latency_mean': avg_latency,
-                'hops_mean': avg_hops,
-                'num_runs': len(router_results),
+                "pdr_mean": avg_pdr,
+                "pdr_std": pdr_std,
+                "latency_mean": avg_latency,
+                "hops_mean": avg_hops,
+                "num_runs": len(router_results),
             }
 
     return analysis
@@ -336,7 +364,9 @@ def print_analysis_report(analysis: Dict):
         print("-" * 60)
 
         # PDR'a göre sırala
-        sorted_routers = sorted(routers.items(), key=lambda x: x[1]['pdr_mean'], reverse=True)
+        sorted_routers = sorted(
+            routers.items(), key=lambda x: x[1]["pdr_mean"], reverse=True
+        )
 
         for router, stats in sorted_routers:
             pdr_str = f"{stats['pdr_mean']:.2%} ±{stats['pdr_std']:.2%}"
@@ -345,7 +375,9 @@ def print_analysis_report(analysis: Dict):
 
             # En iyi router'ı işaretle
             marker = "🏆" if router == sorted_routers[0][0] else "  "
-            print(f"{marker} {router:<13} | {pdr_str:>10} | {latency_str:>12} | {hops_str:>8}")
+            print(
+                f"{marker} {router:<13} | {pdr_str:>10} | {latency_str:>12} | {hops_str:>8}"
+            )
 
 
 def print_conclusion(analysis: Dict):
@@ -357,12 +389,12 @@ def print_conclusion(analysis: Dict):
     # Her senaryoda kazananı bul
     winners = {}
     for scenario, routers in analysis.items():
-        best_router = max(routers.items(), key=lambda x: x[1]['pdr_mean'])[0]
+        best_router = max(routers.items(), key=lambda x: x[1]["pdr_mean"])[0]
         winners[scenario] = best_router
 
     print("\n📌 Senaryo Bazında En İyi Performans:")
     for scenario, winner in winners.items():
-        pdr = analysis[scenario][winner]['pdr_mean']
+        pdr = analysis[scenario][winner]["pdr_mean"]
         print(f"   • {scenario:20s} → {winner} (PDR: {pdr:.2%})")
 
     # RL performans analizi
@@ -372,9 +404,9 @@ def print_conclusion(analysis: Dict):
     dijkstra_better_count = 0
 
     for scenario, routers in analysis.items():
-        if 'RL-Q' in routers and 'Dijkstra' in routers:
-            rl_pdr = routers['RL-Q']['pdr_mean']
-            dij_pdr = routers['Dijkstra']['pdr_mean']
+        if "RL-Q" in routers and "Dijkstra" in routers:
+            rl_pdr = routers["RL-Q"]["pdr_mean"]
+            dij_pdr = routers["Dijkstra"]["pdr_mean"]
 
             if rl_pdr > dij_pdr:
                 rl_better_count += 1
@@ -392,23 +424,28 @@ def print_conclusion(analysis: Dict):
     total_scenarios = rl_better_count + dijkstra_better_count
 
     if rl_better_count > dijkstra_better_count:
-        print(f"""
+        print(
+            f"""
 ✅ EVET - RL routing klasik algoritmalardan DAHA İYİ performans gösterdi.
 
    • RL {rl_better_count}/{total_scenarios} senaryoda kazandı
    • Özellikle dinamik/afet senaryolarında adaptasyon yeteneği öne çıktı
    • Daha fazla eğitim ile performans artırılabilir
-""")
+"""
+        )
     elif rl_better_count == dijkstra_better_count:
-        print(f"""
+        print(
+            f"""
 ⚖️ KARARSIZ - RL ve klasik algoritmalar eşit performans gösterdi.
 
    • Her biri {rl_better_count}/{total_scenarios} senaryoda kazandı
    • Farklı senaryolarda farklı güçlü yönler
    • Hibrit yaklaşım değerlendirilebilir
-""")
+"""
+        )
     else:
-        print(f"""
+        print(
+            f"""
 ❌ HAYIR - Bu konfigürasyonda klasik algoritmalar daha iyi.
 
    • Dijkstra {dijkstra_better_count}/{total_scenarios} senaryoda kazandı
@@ -421,7 +458,8 @@ def print_conclusion(analysis: Dict):
    2. State space'i zenginleştir
    3. Daha agresif afet senaryoları dene
    4. Multi-agent RL değerlendir
-""")
+"""
+        )
 
 
 def save_results(results: List[Dict], analysis: Dict, output_dir: str = "results"):
@@ -431,20 +469,26 @@ def save_results(results: List[Dict], analysis: Dict, output_dir: str = "results
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # JSON olarak kaydet
-    with open(f"{output_dir}/experiment_results_{timestamp}.json", 'w') as f:
-        json.dump({
-            'config': EXPERIMENT_CONFIG,
-            'scenarios': SCENARIOS,
-            'results': results,
-            'analysis': analysis,
-        }, f, indent=2, default=str)
+    with open(f"{output_dir}/experiment_results_{timestamp}.json", "w") as f:
+        json.dump(
+            {
+                "config": EXPERIMENT_CONFIG,
+                "scenarios": SCENARIOS,
+                "results": results,
+                "analysis": analysis,
+            },
+            f,
+            indent=2,
+            default=str,
+        )
 
     print(f"\n💾 Sonuçlar kaydedildi: {output_dir}/experiment_results_{timestamp}.json")
 
 
 def main():
     """Ana fonksiyon"""
-    print("""
+    print(
+        """
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
 ║     ██╗     ██╗███████╗███████╗███╗   ██╗ ██████╗ ██████╗ ███████╗           ║
@@ -458,7 +502,8 @@ def main():
 ║           AI-Driven Routing vs Classical Algorithms                          ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
-    """)
+    """
+    )
 
     print(f"\n📋 Deney Konfigürasyonu:")
     print(f"   • Düğüm Sayısı: {EXPERIMENT_CONFIG['num_nodes']}")
@@ -469,9 +514,9 @@ def main():
 
     # 1. RL Ajanını Eğit
     rl_router = train_rl_agent(
-        num_episodes=EXPERIMENT_CONFIG['rl_training_episodes'],
-        steps_per_episode=EXPERIMENT_CONFIG['rl_steps_per_episode'],
-        seed=EXPERIMENT_CONFIG['seed']
+        num_episodes=EXPERIMENT_CONFIG["rl_training_episodes"],
+        steps_per_episode=EXPERIMENT_CONFIG["rl_steps_per_episode"],
+        seed=EXPERIMENT_CONFIG["seed"],
     )
 
     # 2. Tüm Deneyleri Çalıştır
